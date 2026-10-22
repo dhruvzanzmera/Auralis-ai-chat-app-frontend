@@ -55,9 +55,9 @@ function ChatInput({ onSend, disabled }) {
             disabled={disabled}
             onChange={(event) => { setValue(event.target.value); resize() }}
             onKeyDown={onKeyDown}
-            placeholder="Ask Zenith anything…"
+            placeholder="Ask Auralis anything…"
             aria-label="Message"
-            className="max-h-[200px] min-h-7 flex-1 resize-none bg-transparent py-1 text-[14.5px] leading-6 outline-none disabled:opacity-60"
+            className="max-h-[200px] min-h-7 flex-1 resize-none bg-transparent py-1 text-sm leading-6 outline-none disabled:opacity-60"
             style={{ color: '#1a1a2e' }}
           />
           <button

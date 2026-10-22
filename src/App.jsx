@@ -9,6 +9,7 @@ function App() {
   const [activeChatId, setActiveChatId] = useState(null)
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
+  const [regeneratingIndex, setRegeneratingIndex] = useState(null)
   const [error, setError] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const activeChat = chats.find((chat) => chat._id === activeChatId)
@@ -57,8 +58,25 @@ function App() {
       await chatApi.delete(`/chats/${chatId}`)
       setChats((current) => current.filter((chat) => chat._id !== chatId))
       if (activeChatId === chatId) startNewChat()
+      return true
     } catch {
       setError('Could not delete this conversation. Please try again.')
+      return false
+    }
+  }
+
+  const renameChat = async (chatId, title) => {
+    try {
+      const { data } = await chatApi.patch(`/chats/${chatId}`, { title })
+      setChats((current) => current
+        .map((chat) => (
+          chat._id === chatId ? { ...chat, title: data.title, updatedAt: data.updatedAt } : chat
+        ))
+        .sort((first, second) => new Date(second.updatedAt) - new Date(first.updatedAt)))
+      return true
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Could not rename this conversation. Please try again.')
+      return false
     }
   }
 
@@ -75,6 +93,38 @@ function App() {
       setError(requestError.response?.data?.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const editMessage = async (messageIndex, prompt) => {
+    if (!activeChatId) return false
+
+    const previousMessages = messages
+    setError('')
+    setLoading(true)
+    setRegeneratingIndex(messageIndex)
+    setMessages((current) => [
+      ...current.slice(0, messageIndex),
+      { ...current[messageIndex], content: prompt, createdAt: new Date().toISOString() },
+    ])
+    try {
+      const { data } = await chatApi.patch(`/chats/${activeChatId}/messages/${messageIndex}`, { prompt })
+      setMessages(data.messages)
+      setLoading(false)
+      setRegeneratingIndex(null)
+      try {
+        await refreshChats()
+      } catch {
+        setError('Your prompt was updated, but the conversation list could not be refreshed.')
+      }
+      return true
+    } catch (requestError) {
+      setMessages(previousMessages)
+      setError(requestError.response?.data?.message || 'Could not edit this prompt. Please try again.')
+      return false
+    } finally {
+      setLoading(false)
+      setRegeneratingIndex(null)
     }
   }
 
@@ -97,6 +147,7 @@ function App() {
         onNewChat={startNewChat}
         onSelectChat={selectChat}
         onDeleteChat={deleteChat}
+        onRenameChat={renameChat}
       />
 
       <main className="flex min-w-0 flex-1 flex-col" style={{ background: '#f8f9fc' }}>
@@ -128,7 +179,14 @@ function App() {
           </span>
         </header>
 
-        <ChatWindow messages={messages} loading={loading} error={error} onSuggestion={sendMessage} />
+        <ChatWindow
+          messages={messages}
+          loading={loading}
+          error={error}
+          onSuggestion={sendMessage}
+          onEditMessage={editMessage}
+          regeneratingIndex={regeneratingIndex}
+        />
         <ChatInput onSend={sendMessage} disabled={loading} />
       </main>
     </div>

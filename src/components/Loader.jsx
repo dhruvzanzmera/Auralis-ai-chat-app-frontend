@@ -1,7 +1,7 @@
 function Loader() {
   return (
-    <div className="msg-enter mb-6 flex items-start gap-3" aria-label="Zenith is thinking" role="status">
-      {/* Zenith avatar */}
+    <div className="msg-enter mb-6 flex items-start gap-3" aria-label="Auralis is thinking" role="status">
+      {/* Auralis avatar */}
       <div
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white"
         style={{
@@ -9,7 +9,7 @@ function Loader() {
           boxShadow: '0 3px 10px rgba(102,126,234,0.35)',
         }}
       >
-        Z
+        A
       </div>
 
       {/* Typing indicator */}

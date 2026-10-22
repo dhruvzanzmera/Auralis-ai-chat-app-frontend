@@ -9,7 +9,7 @@ const suggestions = [
   { icon: '🧠', title: 'Solve a problem', detail: 'Debug my code or work through a hard problem' },
 ]
 
-function ChatWindow({ messages, loading, error, onSuggestion }) {
+function ChatWindow({ messages, loading, error, onSuggestion, onEditMessage, regeneratingIndex }) {
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -29,20 +29,20 @@ function ChatWindow({ messages, loading, error, onSuggestion }) {
                 boxShadow: '0 8px 24px rgba(102,126,234,0.35)',
               }}
             >
-              Z
+              A
             </div>
             <span className="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ background: '#eef0fb', color: '#5c6bc0' }}>
               Your AI workspace
             </span>
           </div>
           <h1
-            className="mt-4 text-3xl font-bold leading-tight sm:text-4xl"
+            className="mt-4 text-2xl font-bold leading-tight sm:text-3xl"
             style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}
           >
-            Hello! I&apos;m <span style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Zenith</span>
+            Hello! I&apos;m <span style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Auralis</span>
           </h1>
-          <p className="mt-2 max-w-md text-base leading-7" style={{ color: '#7986a8' }}>
-            Your intelligent AI assistant — built to help you think, create, and reach the peak of what&apos;s possible.
+          <p className="mt-2 max-w-md text-sm leading-6" style={{ color: '#7986a8' }}>
+            Your intelligent AI assistant — built to help you think, create, and make the most of every idea.
           </p>
 
           {/* Suggestion cards */}
@@ -80,9 +80,17 @@ function ChatWindow({ messages, loading, error, onSuggestion }) {
       ) : (
         <div className="mx-auto max-w-3xl px-4 pb-8 pt-6 sm:px-6">
           {messages.map((message, index) => (
-            <MessageBubble key={`${message.createdAt || index}-${index}`} message={message} />
+            <div key={`${message.createdAt || index}-${index}`}>
+              <MessageBubble
+                message={message}
+                messageIndex={index}
+                onEdit={onEditMessage}
+                disabled={loading}
+              />
+              {regeneratingIndex === index && loading && <Loader />}
+            </div>
           ))}
-          {loading && <Loader />}
+          {loading && regeneratingIndex === null && <Loader />}
           {error && (
             <div
               role="alert"
