@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
+function Sidebar({ chats, loadingChats, activeChatId, open, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
   const [editingChatId, setEditingChatId] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [saving, setSaving] = useState(false)
@@ -201,7 +201,12 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
               )}
             </div>
           ))}
-          {chats.length === 0 && (
+          {loadingChats && (
+            <p role="status" className="px-2 py-4 text-center text-xs" style={{ color: '#b0bcd8' }}>
+              Loading conversations…
+            </p>
+          )}
+          {!loadingChats && chats.length === 0 && (
             <p className="px-2 py-4 text-center text-xs" style={{ color: '#b0bcd8' }}>
               Your conversations will appear here.
             </p>

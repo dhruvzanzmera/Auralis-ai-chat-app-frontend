@@ -11,6 +11,7 @@ function ChatPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [chats, setChats] = useState([])
+  const [loadingChats, setLoadingChats] = useState(true)
   const [activeChatId, setActiveChatId] = useState(null)
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
@@ -32,6 +33,8 @@ function ChatPage() {
         if (!cancelled) setChats(data)
       } catch {
         if (!cancelled) setError('Could not load your conversations. Check that the server is running.')
+      } finally {
+        if (!cancelled) setLoadingChats(false)
       }
     }
     loadChats()
@@ -156,6 +159,7 @@ function ChatPage() {
 
       <Sidebar
         chats={chats}
+        loadingChats={loadingChats}
         activeChatId={activeChatId}
         open={sidebarOpen}
         onNewChat={startNewChat}

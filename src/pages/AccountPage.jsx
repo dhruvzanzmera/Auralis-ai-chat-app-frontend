@@ -56,8 +56,7 @@ function AccountPage() {
   }
 
   const totalPrompts = usage?.totalPrompts ?? usage?.totalRequests ?? usage?.total ?? 0
-  const totals = usage?.tokens || {}
-  const tokenCount = totals.totalTokens ?? totals.total ?? usage?.totalTokens ?? 0
+  const metricValue = (value) => loadingUsage ? 'Loading…' : usage ? value : '—'
 
   return (
     <main className="h-dvh overflow-y-auto bg-[#f8f9fc]">
@@ -68,11 +67,10 @@ function AccountPage() {
         <button onClick={() => navigate('/chat')} className="rounded-xl border border-[#e0e3f7] bg-white px-4 py-2 text-sm font-medium text-[#4a5580] hover:bg-[#f5f6ff]">Back to chat</button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric title="Total prompts" value={totalPrompts} />
-        <Metric title="Prompts today" value={usage?.today?.prompts ?? usage?.dailyPrompts ?? 0} />
-        <Metric title="Prompts this week" value={usage?.week?.prompts ?? usage?.weeklyPrompts ?? 0} />
-        <Metric title="Prompts this month" value={usage?.month?.prompts ?? usage?.monthlyPrompts ?? 0} />
-        <Metric title="Tokens consumed" value={Number(tokenCount).toLocaleString()} />
+        <Metric title="Total prompts" value={metricValue(totalPrompts)} />
+        <Metric title="Prompts today" value={metricValue(usage?.today?.prompts ?? usage?.dailyPrompts ?? 0)} />
+        <Metric title="Prompts this week" value={metricValue(usage?.week?.prompts ?? usage?.weeklyPrompts ?? 0)} />
+        <Metric title="Prompts this month" value={metricValue(usage?.month?.prompts ?? usage?.monthlyPrompts ?? 0)} />
       </div>
       <section className="mt-5 rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
         <h2 className="font-semibold text-[#1a1a2e]">Daily prompt activity</h2>
@@ -122,7 +120,8 @@ function AccountPage() {
 }
 
 function Metric({ title, value }) {
-  return <div className="rounded-2xl border border-[#e8eaf6] bg-white p-4 shadow-sm"><p className="text-xs font-medium text-[#8b93ad]">{title}</p><p className="mt-2 text-2xl font-bold text-[#272b4a]">{Number(value || 0).toLocaleString()}</p></div>
+  const displayValue = typeof value === 'number' ? value.toLocaleString() : value
+  return <div className="rounded-2xl border border-[#e8eaf6] bg-white p-4 shadow-sm"><p className="text-xs font-medium text-[#8b93ad]">{title}</p><p className="mt-2 text-2xl font-bold text-[#272b4a]" aria-live="polite">{displayValue}</p></div>
 }
 
 function ProfileRow({ label, value }) {
