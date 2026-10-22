@@ -56,7 +56,7 @@ function AccountPage() {
   }
 
   const totalPrompts = usage?.totalPrompts ?? usage?.totalRequests ?? usage?.total ?? 0
-  const metricValue = (value) => loadingUsage ? 'Loading…' : usage ? value : '—'
+  const metricValue = (value) => usage ? value : '—'
 
   return (
     <main className="h-dvh overflow-y-auto bg-[#f8f9fc]">
@@ -85,7 +85,7 @@ function AccountPage() {
               <div className="min-w-0"><p className="truncate font-medium text-[#394055]">{log.promptText || 'Prompt content not retained'}</p><p className="mt-1 text-xs text-[#8b93ad]">{formatDate(log.createdAt)} · {log.model || 'AI model'}</p></div>
               <div className="shrink-0 text-right"><span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${log.requestStatus === 'success' || log.requestStatus === 'succeeded' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{log.requestStatus || 'recorded'}</span><p className="mt-1 text-[11px] text-[#8b93ad]">{Number(log.totalTokens || 0).toLocaleString()} tokens</p></div>
             </div>)}
-          </div> : <EmptyState text={loadingUsage ? 'Loading your request history…' : error || 'No AI requests recorded yet.'} />}
+          </div> : <EmptyState text={loadingUsage ? '' : error || 'No AI requests recorded yet.'} />}
           {historyPages > 1 && <div className="mt-3 flex items-center justify-end gap-3 border-t border-[#f0f2f8] pt-3 text-xs text-[#7986a8]">
             <button disabled={historyPage <= 1} onClick={() => { setLoadingUsage(true); loadUsage(historyPage - 1).catch((requestError) => setError(requestError.response?.data?.message || 'Could not load usage history.')) }} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Previous</button>
             <span>Page {historyPage} of {historyPages}</span>
@@ -129,6 +129,7 @@ function ProfileRow({ label, value }) {
 }
 
 function EmptyState({ text }) {
+  if (!text) return null
   return <p className="py-8 text-center text-sm text-[#8b93ad]">{text}</p>
 }
 
@@ -140,7 +141,7 @@ function DailyChart({ rows, loading }) {
       <div className="mx-auto w-full max-w-8 rounded-t bg-gradient-to-t from-[#764ba2] to-[#667eea]" style={{ height: `${Math.max(3, Number(row.count || 0) / maximum * 75)}%` }} />
       <span className="mt-2 truncate text-center text-[9px] text-[#8b93ad]">{new Date(`${row.date}T00:00:00Z`).toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' })}</span>
     </div>)}
-  </div> : <EmptyState text={loading ? 'Loading daily activity…' : 'No daily activity to show yet.'} />
+  </div> : <EmptyState text={loading ? '' : 'No daily activity to show yet.'} />
 }
 
 function formatDate(value) {

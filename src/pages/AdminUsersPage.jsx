@@ -98,7 +98,7 @@ function AdminUsersPage() {
         {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div><h2 className="font-semibold text-[#1a1a2e]">User management</h2><p className="mt-1 text-xs text-[#8b93ad]">{loading ? 'Loading accounts…' : `${pagination.total} accounts`}</p></div>
+            <div><h2 className="font-semibold text-[#1a1a2e]">User management</h2><p className="mt-1 text-xs text-[#8b93ad]">{loading ? '' : `${pagination.total} accounts`}</p></div>
             <div className="flex flex-wrap gap-2">
               <input aria-label="Search users" placeholder="Search name or email" value={search} onChange={(event) => changeFilter(setSearch, event.target.value)} className="w-48 rounded-lg border border-[#e0e3f7] px-3 py-2 text-xs outline-none focus:border-[#9fa8da]" />
               <select aria-label="Filter by role" value={role} onChange={(event) => changeFilter(setRole, event.target.value)} className="rounded-lg border border-[#e0e3f7] bg-white px-2 py-2 text-xs"><option value="">All roles</option><option value="USER">User</option><option value="ADMIN">Admin</option></select>
@@ -108,7 +108,7 @@ function AdminUsersPage() {
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-xs">
               <thead><tr className="border-b border-[#eef0f8] text-[#8b93ad]"><th className="pb-3 font-medium">User</th><th className="pb-3 font-medium">Role</th><th className="pb-3 font-medium">Status</th><th className="pb-3 font-medium">Registered</th><th className="pb-3 font-medium">Last activity</th><th className="pb-3 text-right font-medium">Actions</th></tr></thead>
-              <tbody>{loading ? <tr><td colSpan="6" className="py-8 text-center text-sm text-[#8b93ad]">Loading users…</td></tr> : users.map((user) => <tr key={user._id} className="border-b border-[#f4f5fa] text-[#394055]">
+              <tbody>{loading ? <tr><td colSpan="6" className="py-8" /></tr> : users.map((user) => <tr key={user._id} className="border-b border-[#f4f5fa] text-[#394055]">
                 <td className="py-3"><button onClick={() => openUser(user)} className="text-left hover:text-[#5c6bc0]"><span className="block font-semibold">{user.name}</span><span className="mt-0.5 block text-[#8b93ad]">{user.email}</span></button></td>
                 <td className="py-3">{user.role || 'USER'}</td><td className="py-3 capitalize">{user.status || 'active'}</td><td className="py-3">{formatDate(user.createdAt)}</td><td className="py-3">{formatDate(user.lastActivityAt || user.lastActiveAt)}</td>
                 <td className="py-3 text-right"><button disabled={busyId === user._id} onClick={() => updateUser(user, 'status', (user.status || 'active') === 'blocked' ? 'active' : 'blocked')} className="mr-2 rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">{user.status === 'blocked' ? 'Unblock' : 'Block'}</button><button disabled={busyId === user._id} onClick={() => updateUser(user, 'role', user.role === 'ADMIN' ? 'USER' : 'ADMIN')} className="rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">{user.role === 'ADMIN' ? 'Make user' : 'Make admin'}</button></td>
@@ -118,7 +118,7 @@ function AdminUsersPage() {
           </div>
           <div className="mt-4 flex items-center justify-end gap-3 text-xs text-[#7986a8]">
             <button disabled={loading || pagination.page <= 1} onClick={() => changePage(pagination.page - 1)} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Previous</button>
-            <span>{loading ? 'Loading…' : `Page ${pagination.page} of ${pagination.pages}`}</span>
+            <span>{loading ? '' : `Page ${pagination.page} of ${pagination.pages}`}</span>
             <button disabled={loading || pagination.page >= pagination.pages} onClick={() => changePage(pagination.page + 1)} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Next</button>
           </div>
         </section>
@@ -139,7 +139,7 @@ function UserDetails({ user, usage, loadingUsage, onClose }) {
         <Metric title="Tokens" value={usage.totalTokens ?? usage.tokens?.totalTokens ?? 0} />
         <Metric title="Today" value={usage.today?.prompts ?? usage.dailyPrompts ?? 0} />
         <Metric title="This week" value={usage.week?.prompts ?? usage.weeklyPrompts ?? 0} />
-      </div> : <p role={loadingUsage ? 'status' : undefined} className="mt-3 text-sm text-[#8b93ad]">{loadingUsage ? 'Loading usage…' : 'Could not load usage data.'}</p>}
+      </div> : loadingUsage ? null : <p className="mt-3 text-sm text-[#8b93ad]">Could not load usage data.</p>}
       {usage?.recentRequests?.length > 0 && <div className="mt-4 space-y-2">{usage.recentRequests.slice(0, 8).map((request, index) => <div key={request._id || index} className="flex justify-between gap-3 border-t border-[#f0f2f8] pt-2 text-xs"><span className="truncate text-[#566078]">{request.promptText || request.model || 'AI request'}</span><span className="shrink-0 text-[#8b93ad]">{Number(request.totalTokens || 0).toLocaleString()} tokens</span></div>)}</div>}
     </section>
   </div>

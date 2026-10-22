@@ -69,7 +69,7 @@ function AdminDashboardPage() {
   const activeUsers = metrics.activeUsers ?? 0
   const totalPrompts = metrics.totalPrompts ?? metrics.promptCount ?? 0
   const avgResponse = metrics.averageResponseTime ?? metrics.avgResponseTime ?? 0
-  const displayMetric = (value) => loadingData ? 'Loading…' : dashboard ? value : '—'
+  const displayMetric = (value) => dashboard ? value : '—'
 
   return (
     <main className="h-dvh overflow-y-auto bg-[#f8f9fc]">
@@ -125,8 +125,8 @@ function AdminDashboardPage() {
             {dashboard.mostActiveUsers.slice(0, 6).map((item, index) => <div key={item._id || index} className="flex justify-between gap-3 py-3 text-sm"><span className="truncate text-[#394055]">{item.name || item.email || 'User'}</span><span className="font-semibold text-[#5c6bc0]">{item.prompts ?? item.count ?? item.totalPrompts ?? 0} prompts</span></div>)}
           </div> : <EmptyState text={loadingData ? 'Loading user activity…' : 'No usage leaders to show yet.'} />}
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#f0f2f8] pt-4">
-            <MiniMetric label="Input tokens" value={metrics.inputTokens ?? metrics.tokens?.inputTokens ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Output tokens" value={metrics.outputTokens ?? metrics.tokens?.outputTokens ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Input tokens" value={metrics.inputTokens ?? metrics.tokens?.inputTokens ?? 0} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Output tokens" value={metrics.outputTokens ?? metrics.tokens?.outputTokens ?? 0} hasData={Boolean(dashboard)} />
           </div>
         </section>
       </div>
@@ -144,10 +144,10 @@ function AdminDashboardPage() {
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Request outcomes</h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <MiniMetric label="Successful" value={errorSummary.successfulRequests ?? errorSummary.success ?? errorSummary.succeeded ?? metrics.successfulRequests ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Failed" value={errorSummary.failedRequests ?? errorSummary.failed ?? metrics.failedRequests ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Input tokens" value={analytics.tokens?.inputTokens ?? analytics.tokens?.totals?.inputTokens ?? metrics.inputTokens ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Output tokens" value={analytics.tokens?.outputTokens ?? analytics.tokens?.totals?.outputTokens ?? metrics.outputTokens ?? 0} loading={loadingData} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Successful" value={errorSummary.successfulRequests ?? errorSummary.success ?? errorSummary.succeeded ?? metrics.successfulRequests ?? 0} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Failed" value={errorSummary.failedRequests ?? errorSummary.failed ?? metrics.failedRequests ?? 0} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Input tokens" value={analytics.tokens?.inputTokens ?? analytics.tokens?.totals?.inputTokens ?? metrics.inputTokens ?? 0} hasData={Boolean(dashboard)} />
+            <MiniMetric label="Output tokens" value={analytics.tokens?.outputTokens ?? analytics.tokens?.totals?.outputTokens ?? metrics.outputTokens ?? 0} hasData={Boolean(dashboard)} />
           </div>
           {errorSummary.errors?.length > 0 && <div className="mt-3 border-t border-[#f0f2f8] pt-3">{errorSummary.errors.slice(0, 3).map((item, index) => <p key={item.code || index} className="py-1 text-xs text-[#7b849a]">{item.code || item.errorCode || 'Error'} · {item.count ?? 0}</p>)}</div>}
         </section>
@@ -161,12 +161,13 @@ function Metric({ title, value }) {
   return <div className="rounded-xl border border-[#e8eaf6] bg-[#fcfcff] p-3"><p className="text-[10px] font-medium text-[#8b93ad]">{title}</p><p className="mt-1 text-lg font-bold text-[#272b4a]">{typeof value === 'number' ? value.toLocaleString() : value}</p></div>
 }
 
-function MiniMetric({ label, value, loading, hasData }) {
-  const displayValue = loading ? 'Loading…' : hasData ? Number(value ?? 0).toLocaleString() : '—'
+function MiniMetric({ label, value, hasData }) {
+  const displayValue = hasData ? Number(value ?? 0).toLocaleString() : '—'
   return <div><p className="text-[10px] text-[#8b93ad]">{label}</p><p className="mt-1 text-sm font-semibold text-[#394055]">{displayValue}</p></div>
 }
 
 function EmptyState({ text }) {
+  if (text.startsWith('Loading ')) return null
   return <p className="py-8 text-center text-sm text-[#8b93ad]">{text}</p>
 }
 

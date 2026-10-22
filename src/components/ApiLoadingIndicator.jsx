@@ -6,8 +6,10 @@ function ApiLoadingIndicator() {
   if (!isLoading) return null
 
   return (
-    <div role="status" aria-label="Loading data" className="fixed inset-x-0 top-0 z-[100] h-1 overflow-hidden bg-[#e8eaf6]">
-      <div className="h-full w-1/3 animate-pulse bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
+    <div role="status" aria-label="Loading data" className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8f9fc]/90 backdrop-blur-sm">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-lg shadow-[#667eea]/15">
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#e0e3f7] border-t-[#667eea]" />
+      </div>
     </div>
   )
 }
