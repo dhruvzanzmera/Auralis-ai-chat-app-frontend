@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import PageHeader from '../components/PageHeader'
 
 function AccountPage() {

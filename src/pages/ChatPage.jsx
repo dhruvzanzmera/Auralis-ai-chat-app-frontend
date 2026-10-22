@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import Sidebar from '../components/Sidebar'
 import ChatWindow from '../components/ChatWindow'
 import ChatInput from '../components/ChatInput'

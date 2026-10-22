@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 function LoadingScreen() {
   return <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc] text-sm text-[#7986a8]">Loading your secure workspace…</main>

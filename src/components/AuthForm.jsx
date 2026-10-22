@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 const copy = {
   login: {

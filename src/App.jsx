@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useAuth } from './auth/AuthContext'
+import { useAuth } from './auth/useAuth'
 import { GuestOnly, RequireAdmin, RequireAuth } from './components/RouteGuards'
 import AccountPage from './pages/AccountPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
