@@ -10,7 +10,13 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 npm run dev
 ```
 
-`VITE_API_URL` defaults to `http://localhost:5000/api`. The Axios client sends credentialed requests for the backend's `httpOnly` session cookie; configure the matching frontend origin in the backend's `CLIENT_URLS`.
+`VITE_API_URL` defaults to `http://localhost:5000/api` in development. The
+Axios client sends credentialed requests for the backend's `httpOnly` session
+cookie; configure the matching frontend origin in the backend's `CLIENT_URLS`.
+
+Production builds use the same-origin `/api` path. `vercel.json` proxies those
+requests to the backend so session cookies are first-party in the browser.
+Update the rewrite destination if the backend URL changes.
 
 For production, set `VITE_API_URL` in the frontend hosting provider's build
 environment to the deployed backend's `/api` URL. Do not use `localhost` in a

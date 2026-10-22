@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://auralis-ai-chat-app-backend.onrender.com/api/:path*"
+    }
+  ]
+}
