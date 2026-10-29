@@ -30,21 +30,21 @@ function ChatInput({ onSend, disabled }) {
 
   return (
     <div
-      className="shrink-0 px-4 pb-5 pt-3"
+      className="shrink-0 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-5"
       style={{
-        background: 'rgba(248,249,252,0.9)',
-        backdropFilter: 'blur(12px)',
-        borderTop: '1px solid #e8eaf6',
+        background: 'rgba(247,248,252,0.94)',
+        backdropFilter: 'blur(14px)',
+        borderTop: '1px solid #e4e7f1',
       }}
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl">
         {/* Input box */}
         <div
-          className="composer-shell flex items-end gap-3 rounded-2xl px-4 py-3 transition-all duration-200"
+          className="composer-shell flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-all duration-200 sm:gap-3 sm:px-4"
           style={{
             background: '#ffffff',
-            border: '1.5px solid #e0e3f7',
-            boxShadow: '0 4px 16px rgba(92,107,192,0.1)',
+            border: '1px solid #dfe3ef',
+            boxShadow: '0 3px 12px rgba(34,43,90,0.06)',
           }}
         >
           <textarea
@@ -57,7 +57,8 @@ function ChatInput({ onSend, disabled }) {
             onKeyDown={onKeyDown}
             placeholder="Ask Auralis anything…"
             aria-label="Message"
-            className="max-h-[200px] min-h-7 flex-1 resize-none bg-transparent py-1 text-sm leading-6 outline-none disabled:opacity-60"
+            aria-describedby="chat-input-hint"
+            className="max-h-[200px] min-h-10 flex-1 resize-none bg-transparent py-2 text-base leading-6 outline-none disabled:opacity-60 sm:text-[15px]"
             style={{ color: '#1a1a2e' }}
           />
           <button
@@ -65,7 +66,7 @@ function ChatInput({ onSend, disabled }) {
             onClick={submit}
             disabled={!canSend}
             aria-label="Send message"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:brightness-105"
             style={{
               background: canSend
                 ? 'linear-gradient(135deg, #667eea, #764ba2)'
@@ -84,7 +85,7 @@ function ChatInput({ onSend, disabled }) {
         </div>
 
         {/* Disclaimer */}
-        <p className="mt-2 text-center text-[10.5px]" style={{ color: '#8b93ad' }}>
+        <p id="chat-input-hint" className="mt-2 hidden text-center text-xs sm:block" style={{ color: '#727b96' }}>
           Enter to send · Shift + Enter for a new line · Verify important information.
         </p>
       </div>

@@ -30,27 +30,26 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
   }
 
   return (
-    <article className={`msg-enter mb-6 flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <article className={`msg-enter mb-6 flex min-w-0 gap-2.5 sm:gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {/* Assistant avatar */}
       {!isUser && (
         <div
           className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white"
           style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            boxShadow: '0 3px 10px rgba(102,126,234,0.35)',
+            background: 'linear-gradient(135deg, #6874df, #7655a8)',
           }}
         >
           A
         </div>
       )}
 
-      <div className={`min-w-0 max-w-[88%] sm:max-w-[80%] ${isUser ? '' : 'flex-1'}`}>
+      <div className={`min-w-0 max-w-[calc(100%_-_2.75rem)] sm:max-w-[82%] ${isUser ? '' : 'flex-1'}`}>
         {isUser ? (
           <div className="flex flex-col items-end gap-1.5">
             {editing ? (
               <form
                 onSubmit={submitEdit}
-                className="w-[min(32rem,80vw)] rounded-2xl border border-[#e0e3f7] bg-white p-3 shadow-md"
+                className="w-[min(32rem,calc(100vw-5rem))] rounded-2xl border border-[#e0e3f7] bg-white p-3 shadow-md sm:w-[min(32rem,80vw)]"
               >
                 <textarea
                   aria-label="Edit your prompt"
@@ -82,13 +81,12 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
             ) : (
               <>
                 <div
-                  className="inline-block rounded-3xl rounded-tr-lg px-4 py-3"
+                  className="inline-block max-w-full rounded-3xl rounded-tr-lg px-4 py-3"
                   style={{
-                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                    boxShadow: '0 4px 14px rgba(102,126,234,0.3)',
+                    background: '#565db9',
                   }}
                 >
-                  <p className="whitespace-pre-wrap text-sm leading-[1.65] text-white">{message.content}</p>
+                  <p className="break-words [overflow-wrap:anywhere] whitespace-pre-wrap text-[15px] leading-[1.7] text-white">{message.content}</p>
                 </div>
                 {onEdit && (
                   <button
@@ -97,7 +95,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
                     disabled={disabled}
                     aria-label="Edit prompt"
                     title="Edit prompt"
-                    className="rounded-md p-1.5 text-[#8b93ad] transition hover:bg-[#eef0fb] hover:text-[#5c6bc0] disabled:opacity-50"
+                    className="min-h-10 min-w-10 rounded-lg p-2 text-[#68718b] transition hover:bg-[#eff0ff] hover:text-[#424aa6] disabled:opacity-50"
                   >
                     <EditIcon />
                   </button>
@@ -108,39 +106,26 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
         ) : (
           /* AI response */
           <div
-            className="rounded-3xl rounded-tl-lg px-5 py-4"
+            className="rounded-2xl rounded-tl-md px-4 py-3.5 sm:px-5 sm:py-4"
             style={{
               background: '#ffffff',
-              border: '1px solid #e8eaf6',
-              boxShadow: '0 2px 12px rgba(92,107,192,0.08)',
+              border: '1px solid #e4e7f1',
+              boxShadow: '0 1px 3px rgba(34,43,90,0.04)',
             }}
           >
-            <div className="markdown-content text-sm">
+            <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
             </div>
             {/* Copy button */}
-            <div className="mt-3 flex items-center gap-2" style={{ borderTop: '1px solid #f0f2ff', paddingTop: '10px' }}>
+            <div className="mt-3 flex items-center gap-2 border-t border-[#edf0f6] pt-2.5">
               <button
+                type="button"
+                aria-live="polite"
                 onClick={copyMessage}
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150"
+                className="flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#68718b] transition hover:bg-[#f2f4fb] hover:text-[#424aa6]"
                 style={{
-                  color: copied ? '#3949ab' : '#9fa8da',
-                  background: copied ? '#eef0fb' : 'transparent',
-                  border: copied ? '1px solid #e0e3f7' : '1px solid transparent',
-                }}
-                onMouseEnter={e => {
-                  if (!copied) {
-                    e.currentTarget.style.background = '#f5f6ff'
-                    e.currentTarget.style.color = '#5c6bc0'
-                    e.currentTarget.style.border = '1px solid #e8eaf6'
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!copied) {
-                    e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.color = '#9fa8da'
-                    e.currentTarget.style.border = '1px solid transparent'
-                  }
+                  color: copied ? '#424aa6' : undefined,
+                  background: copied ? '#eff0ff' : undefined,
                 }}
               >
                 {copied ? <CheckIcon /> : <CopyIcon />}
@@ -155,7 +140,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
       {isUser && (
         <div
           className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #f093fb, #f5576c)' }}
+          style={{ background: '#727b96' }}
         >
           U
         </div>

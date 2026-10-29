@@ -17,6 +17,7 @@ function ChatPage() {
   const [regeneratingIndex, setRegeneratingIndex] = useState(null)
   const [error, setError] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const activeChat = chats.find((chat) => chat._id === activeChatId)
 
   const refreshChats = useCallback(async () => {
@@ -44,6 +45,16 @@ function ChatPage() {
     setError('')
     setSidebarOpen(false)
   }
+
+  const toggleNavigation = () => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      setSidebarCollapsed((current) => !current)
+      return
+    }
+    setSidebarOpen(true)
+  }
+
+  const closeNavigation = useCallback(() => setSidebarOpen(false), [])
 
   const selectChat = async (chatId) => {
     if (loading) return
@@ -143,7 +154,7 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex h-dvh overflow-hidden" style={{ background: '#f8f9fc' }}>
+    <div className="flex h-dvh overflow-hidden bg-[#f7f8fc]">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <button
@@ -158,21 +169,23 @@ function ChatPage() {
         chats={chats}
         activeChatId={activeChatId}
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
+        onClose={closeNavigation}
         onNewChat={startNewChat}
         onSelectChat={selectChat}
         onDeleteChat={deleteChat}
         onRenameChat={renameChat}
       />
 
-      <main className="flex min-w-0 flex-1 flex-col" style={{ background: '#f8f9fc' }}>
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#f7f8fc]">
         <header className="app-header flex h-14 shrink-0 items-center gap-3 px-4">
           <button
-            aria-label="Open navigation"
-            className="rounded-xl p-2 transition md:hidden"
-            style={{ color: '#5c6bc0' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#eef0fb'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            onClick={() => setSidebarOpen(true)}
+            type="button"
+            aria-label="Toggle conversation navigation"
+            aria-controls="conversation-navigation"
+            aria-expanded={window.matchMedia('(min-width: 768px)').matches ? !sidebarCollapsed : sidebarOpen}
+            className="rounded-xl p-2 text-[#5961b7] transition hover:bg-[#eff0ff]"
+            onClick={toggleNavigation}
           >
             <MenuIcon />
           </button>
@@ -181,7 +194,7 @@ function ChatPage() {
               {activeChat?.title || 'New conversation'}
             </p>
             <p className="text-[11px]" style={{ color: '#8b93ad' }}>
-              {activeChat ? 'Conversation' : 'Start with a question or an idea'}
+              {activeChat ? 'Your conversation' : 'Start with a question or an idea'}
             </p>
           </div>
           <span

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
+function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
   const [editingChatId, setEditingChatId] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [saving, setSaving] = useState(false)
@@ -9,6 +9,8 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
   const titleInputRef = useRef(null)
   const cancelDeleteRef = useRef(null)
   const deletingRef = useRef(false)
+  const sidebarRef = useRef(null)
+  const closeButtonRef = useRef(null)
 
   useEffect(() => {
     if (editingChatId) titleInputRef.current?.focus()
@@ -23,6 +25,42 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [deleteTarget])
+
+  useEffect(() => {
+    if (!open || !window.matchMedia('(max-width: 767px)').matches) return undefined
+
+    const previousFocus = document.activeElement
+    closeButtonRef.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onClose()
+        return
+      }
+
+      if (event.key !== 'Tab') return
+      const focusable = sidebarRef.current?.querySelectorAll(
+        'button:not(:disabled), input:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+      )
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      if (previousFocus instanceof HTMLElement) previousFocus.focus()
+    }
+  }, [open, onClose])
 
   const startRename = (chat) => {
     setEditingChatId(chat._id)
@@ -58,12 +96,18 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
   return (
     <>
       <aside
+        id="conversation-navigation"
+        ref={sidebarRef}
+        role={open ? 'dialog' : undefined}
+        aria-modal={open || undefined}
         style={{
-          background: 'linear-gradient(180deg, #ffffff 0%, #f5f6ff 100%)',
-          borderRight: '1px solid #e8eaf6',
-          boxShadow: open ? '4px 0 24px rgba(92,107,192,0.12)' : 'none',
+          background: '#ffffff',
+          borderRight: collapsed ? 'none' : '1px solid #e4e7f1',
+          boxShadow: open ? '8px 0 32px rgba(34,43,90,0.14)' : 'none',
         }}
-        className={`fixed inset-y-0 left-0 z-30 flex w-[270px] shrink-0 flex-col p-3 transition-transform duration-300 md:relative md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'
+        aria-label="Conversation navigation"
+        className={`fixed inset-y-0 left-0 z-30 flex w-[min(84vw,300px)] shrink-0 flex-col p-3 transition-all duration-200 md:relative md:w-[272px] md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'
+        } ${collapsed ? 'sidebar-collapsed' : ''
         }`}
       >
       {/* Brand */}
@@ -83,6 +127,15 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
             <p className="text-[10px] leading-tight" style={{ color: '#9fa8da' }}>AI Assistant</p>
           </div>
         </div>
+        <button
+          type="button"
+          ref={closeButtonRef}
+          onClick={onClose}
+          aria-label="Close navigation"
+          className="rounded-lg p-2 text-[#727b96] transition hover:bg-[#f2f4fb] md:hidden"
+        >
+          <CloseIcon />
+        </button>
       </div>
 
       {/* New Chat Button */}
@@ -125,18 +178,9 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
           {chats.map((chat) => (
             <div
               key={chat._id}
-              className="group flex items-center gap-1 rounded-xl px-2 py-1.5 transition-all duration-150"
+              className={`group flex min-h-10 items-center gap-1 rounded-xl px-2 py-1.5 transition-all duration-150 ${activeChatId === chat._id ? 'bg-[#eff0ff] ring-1 ring-inset ring-[#dfe1f8]' : 'hover:bg-[#f5f6fa]'}`}
               style={{
-                background: activeChatId === chat._id
-                  ? 'linear-gradient(135deg, #667eea18, #764ba212)'
-                  : 'transparent',
-                border: activeChatId === chat._id ? '1px solid #e0e3f7' : '1px solid transparent',
-              }}
-              onMouseEnter={e => {
-                if (activeChatId !== chat._id) e.currentTarget.style.background = '#f0f2ff'
-              }}
-              onMouseLeave={e => {
-                if (activeChatId !== chat._id) e.currentTarget.style.background = 'transparent'
+                border: '1px solid transparent',
               }}
             >
               {editingChatId === chat._id ? (
@@ -176,7 +220,7 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
                   <button
                     title={chat.title}
                     onClick={() => onSelectChat(chat._id)}
-                    className="min-w-0 flex-1 truncate py-1.5 text-left text-xs font-medium"
+                    className="min-h-10 min-w-0 flex-1 truncate py-1.5 text-left text-[13px] font-medium"
                     style={{ color: activeChatId === chat._id ? '#3949ab' : '#4a5580' }}
                   >
                     {chat.title || 'New conversation'}
@@ -212,7 +256,7 @@ function Sidebar({ chats, activeChatId, open, onNewChat, onSelectChat, onDeleteC
       {/* Footer */}
       <div
         className="mt-3 px-3 pt-4 text-[11px]"
-        style={{ borderTop: '1px solid #e8eaf6', color: '#b0bcd8' }}
+        style={{ borderTop: '1px solid #e4e7f1', color: '#727b96' }}
       >
         Made for curious minds ✦
       </div>
