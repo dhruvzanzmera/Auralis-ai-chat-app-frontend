@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
+import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
 function AccountPage() {
@@ -13,6 +14,7 @@ function AccountPage() {
   const [historyPage, setHistoryPage] = useState(1)
   const [historyPages, setHistoryPages] = useState(1)
   const [form, setForm] = useState({ currentPassword: '', newPassword: '' })
+  const [historyLoadingPage, setHistoryLoadingPage] = useState(null)
   const [busy, setBusy] = useState(false)
   const [loadingUsage, setLoadingUsage] = useState(true)
   const [error, setError] = useState('')
@@ -55,6 +57,19 @@ function AccountPage() {
     }
   }
 
+  const changeHistoryPage = async (page) => {
+    setHistoryLoadingPage(page)
+    setLoadingUsage(true)
+    setError('')
+    try {
+      await loadUsage(page)
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Could not load usage history.')
+    } finally {
+      setHistoryLoadingPage(null)
+    }
+  }
+
   const totalPrompts = usage?.totalPrompts ?? usage?.totalRequests ?? usage?.total ?? 0
   const metricValue = (value) => usage ? value : '—'
 
@@ -67,10 +82,10 @@ function AccountPage() {
         <button onClick={() => navigate('/chat')} className="rounded-xl border border-[#e0e3f7] bg-white px-4 py-2 text-sm font-medium text-[#4a5580] hover:bg-[#f5f6ff]">Back to chat</button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric title="Total prompts" value={metricValue(totalPrompts)} />
-        <Metric title="Prompts today" value={metricValue(usage?.today?.prompts ?? usage?.dailyPrompts ?? 0)} />
-        <Metric title="Prompts this week" value={metricValue(usage?.week?.prompts ?? usage?.weeklyPrompts ?? 0)} />
-        <Metric title="Prompts this month" value={metricValue(usage?.month?.prompts ?? usage?.monthlyPrompts ?? 0)} />
+        <Metric title="Total prompts" value={metricValue(totalPrompts)} loading={loadingUsage && !usage} />
+        <Metric title="Prompts today" value={metricValue(usage?.today?.prompts ?? usage?.dailyPrompts ?? 0)} loading={loadingUsage && !usage} />
+        <Metric title="Prompts this week" value={metricValue(usage?.week?.prompts ?? usage?.weeklyPrompts ?? 0)} loading={loadingUsage && !usage} />
+        <Metric title="Prompts this month" value={metricValue(usage?.month?.prompts ?? usage?.monthlyPrompts ?? 0)} loading={loadingUsage && !usage} />
       </div>
       <section className="mt-5 rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
         <h2 className="font-semibold text-[#1a1a2e]">Daily prompt activity</h2>
@@ -85,11 +100,19 @@ function AccountPage() {
               <div className="min-w-0"><p className="truncate font-medium text-[#394055]">{log.promptText || 'Prompt content not retained'}</p><p className="mt-1 text-xs text-[#8b93ad]">{formatDate(log.createdAt)} · {log.model || 'AI model'}</p></div>
               <div className="shrink-0 text-right"><span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${log.requestStatus === 'success' || log.requestStatus === 'succeeded' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{log.requestStatus || 'recorded'}</span><p className="mt-1 text-[11px] text-[#8b93ad]">{Number(log.totalTokens || 0).toLocaleString()} tokens</p></div>
             </div>)}
-          </div> : <EmptyState text={loadingUsage ? '' : error || 'No AI requests recorded yet.'} />}
+          </div> : loadingUsage
+            ? <LoadingIndicator label="Loading recent AI requests…" className="py-8" />
+            : <EmptyState text={error || 'No AI requests recorded yet.'} />}
           {historyPages > 1 && <div className="mt-3 flex items-center justify-end gap-3 border-t border-[#f0f2f8] pt-3 text-xs text-[#7986a8]">
-            <button disabled={historyPage <= 1} onClick={() => { setLoadingUsage(true); loadUsage(historyPage - 1).catch((requestError) => setError(requestError.response?.data?.message || 'Could not load usage history.')) }} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Previous</button>
-            <span>Page {historyPage} of {historyPages}</span>
-            <button disabled={historyPage >= historyPages} onClick={() => { setLoadingUsage(true); loadUsage(historyPage + 1).catch((requestError) => setError(requestError.response?.data?.message || 'Could not load usage history.')) }} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Next</button>
+            <button disabled={loadingUsage || historyPage <= 1} onClick={() => changeHistoryPage(historyPage - 1)} className="flex min-w-20 items-center justify-center gap-1.5 rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">
+              {historyLoadingPage === historyPage - 1 && <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />}
+              {historyLoadingPage === historyPage - 1 ? 'Loading…' : 'Previous'}
+            </button>
+            <span>{loadingUsage && historyLoadingPage !== null ? 'Loading history…' : `Page ${historyPage} of ${historyPages}`}</span>
+            <button disabled={loadingUsage || historyPage >= historyPages} onClick={() => changeHistoryPage(historyPage + 1)} className="flex min-w-20 items-center justify-center gap-1.5 rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">
+              {historyLoadingPage === historyPage + 1 && <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />}
+              {historyLoadingPage === historyPage + 1 ? 'Loading…' : 'Next'}
+            </button>
           </div>}
         </section>
         <div className="space-y-5">
@@ -119,9 +142,9 @@ function AccountPage() {
   )
 }
 
-function Metric({ title, value }) {
+function Metric({ title, value, loading = false }) {
   const displayValue = typeof value === 'number' ? value.toLocaleString() : value
-  return <div className="rounded-2xl border border-[#e8eaf6] bg-white p-4 shadow-sm"><p className="text-xs font-medium text-[#8b93ad]">{title}</p><p className="mt-2 text-2xl font-bold text-[#272b4a]" aria-live="polite">{displayValue}</p></div>
+  return <div className="rounded-2xl border border-[#e8eaf6] bg-white p-4 shadow-sm"><p className="text-xs font-medium text-[#8b93ad]">{title}</p><p className="mt-2 flex min-h-8 items-center text-2xl font-bold text-[#272b4a]" aria-live="polite">{loading ? <LoadingIndicator label="Loading" /> : displayValue}</p></div>
 }
 
 function ProfileRow({ label, value }) {
@@ -141,7 +164,9 @@ function DailyChart({ rows, loading }) {
       <div className="mx-auto w-full max-w-8 rounded-t bg-gradient-to-t from-[#764ba2] to-[#667eea]" style={{ height: `${Math.max(3, Number(row.count || 0) / maximum * 75)}%` }} />
       <span className="mt-2 truncate text-center text-[9px] text-[#8b93ad]">{new Date(`${row.date}T00:00:00Z`).toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' })}</span>
     </div>)}
-  </div> : <EmptyState text={loading ? '' : 'No daily activity to show yet.'} />
+  </div> : loading
+    ? <LoadingIndicator label="Loading daily activity…" className="min-h-32" />
+    : <EmptyState text="No daily activity to show yet." />
 }
 
 function formatDate(value) {

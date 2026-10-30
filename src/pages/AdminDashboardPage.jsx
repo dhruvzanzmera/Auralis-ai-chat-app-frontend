@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
+import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
 function AdminDashboardPage() {
@@ -93,15 +94,15 @@ function AdminDashboardPage() {
       </div>
       {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Metric title="Registered users" value={displayMetric(metrics.totalUsers ?? 0)} />
-        <Metric title="Active users" value={displayMetric(activeUsers)} />
-        <Metric title="Blocked users" value={displayMetric(metrics.blockedUsers ?? 0)} />
-        <Metric title="Total prompts" value={displayMetric(totalPrompts)} />
-        <Metric title="Prompts today" value={displayMetric(today)} />
-        <Metric title="Prompts this week" value={displayMetric(metrics.promptsThisWeek ?? metrics.weeklyPrompts ?? 0)} />
-        <Metric title="Prompts this month" value={displayMetric(metrics.promptsThisMonth ?? metrics.monthlyPrompts ?? 0)} />
-        <Metric title="Successful / failed" value={dashboard ? displayMetric(`${metrics.successfulRequests ?? 0} / ${metrics.failedRequests ?? 0}`) : displayMetric('—')} />
-        <Metric title="Avg. response time" value={dashboard ? displayMetric(`${Number(avgResponse).toFixed(0)} ms`) : displayMetric('—')} />
+        <Metric title="Registered users" value={displayMetric(metrics.totalUsers ?? 0)} loading={loadingData && !dashboard} />
+        <Metric title="Active users" value={displayMetric(activeUsers)} loading={loadingData && !dashboard} />
+        <Metric title="Blocked users" value={displayMetric(metrics.blockedUsers ?? 0)} loading={loadingData && !dashboard} />
+        <Metric title="Total prompts" value={displayMetric(totalPrompts)} loading={loadingData && !dashboard} />
+        <Metric title="Prompts today" value={displayMetric(today)} loading={loadingData && !dashboard} />
+        <Metric title="Prompts this week" value={displayMetric(metrics.promptsThisWeek ?? metrics.weeklyPrompts ?? 0)} loading={loadingData && !dashboard} />
+        <Metric title="Prompts this month" value={displayMetric(metrics.promptsThisMonth ?? metrics.monthlyPrompts ?? 0)} loading={loadingData && !dashboard} />
+        <Metric title="Successful / failed" value={dashboard ? displayMetric(`${metrics.successfulRequests ?? 0} / ${metrics.failedRequests ?? 0}`) : displayMetric('—')} loading={loadingData && !dashboard} />
+        <Metric title="Avg. response time" value={dashboard ? displayMetric(`${Number(avgResponse).toFixed(0)} ms`) : displayMetric('—')} loading={loadingData && !dashboard} />
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
@@ -117,13 +118,17 @@ function AdminDashboardPage() {
                 <span className="mt-2 truncate text-center text-[9px] text-[#8b93ad]">{formatTick(item.date || item._id)}</span>
               </div>
             })}
-          </div> : <EmptyState text={loadingData ? 'Loading prompt activity…' : 'No prompt activity in this range.'} />}
+          </div> : loadingData
+            ? <LoadingIndicator label="Loading prompt activity…" className="min-h-44" />
+            : <EmptyState text="No prompt activity in this range." />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Recent usage leaders</h2>
           {dashboard?.mostActiveUsers?.length ? <div className="mt-3 divide-y divide-[#f0f2f8]">
             {dashboard.mostActiveUsers.slice(0, 6).map((item, index) => <div key={item._id || index} className="flex justify-between gap-3 py-3 text-sm"><span className="truncate text-[#394055]">{item.name || item.email || 'User'}</span><span className="font-semibold text-[#5c6bc0]">{item.prompts ?? item.count ?? item.totalPrompts ?? 0} prompts</span></div>)}
-          </div> : <EmptyState text={loadingData ? 'Loading user activity…' : 'No usage leaders to show yet.'} />}
+          </div> : loadingData
+            ? <LoadingIndicator label="Loading user activity…" className="min-h-40" />
+            : <EmptyState text="No usage leaders to show yet." />}
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#f0f2f8] pt-4">
             <MiniMetric label="Input tokens" value={metrics.inputTokens ?? metrics.tokens?.inputTokens ?? 0} hasData={Boolean(dashboard)} />
             <MiniMetric label="Output tokens" value={metrics.outputTokens ?? metrics.tokens?.outputTokens ?? 0} hasData={Boolean(dashboard)} />
@@ -135,11 +140,15 @@ function AdminDashboardPage() {
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">New registrations</h2>
           <p className="mt-1 text-xs text-[#8b93ad]">Accounts created within the selected range</p>
-          {registrationRows.length ? <MiniBarChart rows={registrationRows} /> : <EmptyState text={loadingData ? 'Loading registrations…' : 'No registrations in this range.'} />}
+          {registrationRows.length ? <MiniBarChart rows={registrationRows} /> : loadingData
+            ? <LoadingIndicator label="Loading registrations…" className="min-h-32" />
+            : <EmptyState text="No registrations in this range." />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Models by usage</h2>
-          {modelRows.length ? <div className="mt-3 space-y-3">{modelRows.slice(0, 6).map((item, index) => <div key={item.model || item._id || index} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-[#566078]">{item.model || item.name || item._id || 'Model'}</span><span className="font-semibold text-[#5c6bc0]">{Number(item.count ?? item.prompts ?? item.total ?? 0).toLocaleString()}</span></div>)}</div> : <EmptyState text={loadingData ? 'Loading model usage…' : 'No model usage in this range.'} />}
+          {modelRows.length ? <div className="mt-3 space-y-3">{modelRows.slice(0, 6).map((item, index) => <div key={item.model || item._id || index} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-[#566078]">{item.model || item.name || item._id || 'Model'}</span><span className="font-semibold text-[#5c6bc0]">{Number(item.count ?? item.prompts ?? item.total ?? 0).toLocaleString()}</span></div>)}</div> : loadingData
+            ? <LoadingIndicator label="Loading model usage…" className="min-h-32" />
+            : <EmptyState text="No model usage in this range." />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Request outcomes</h2>
@@ -157,8 +166,8 @@ function AdminDashboardPage() {
   )
 }
 
-function Metric({ title, value }) {
-  return <div className="rounded-xl border border-[#e8eaf6] bg-[#fcfcff] p-3"><p className="text-[10px] font-medium text-[#8b93ad]">{title}</p><p className="mt-1 text-lg font-bold text-[#272b4a]">{typeof value === 'number' ? value.toLocaleString() : value}</p></div>
+function Metric({ title, value, loading = false }) {
+  return <div className="rounded-xl border border-[#e8eaf6] bg-[#fcfcff] p-3"><p className="text-[10px] font-medium text-[#8b93ad]">{title}</p><p className="mt-1 flex min-h-7 items-center text-lg font-bold text-[#272b4a]">{loading ? <LoadingIndicator label="Loading" /> : typeof value === 'number' ? value.toLocaleString() : value}</p></div>
 }
 
 function MiniMetric({ label, value, hasData }) {
@@ -167,7 +176,6 @@ function MiniMetric({ label, value, hasData }) {
 }
 
 function EmptyState({ text }) {
-  if (text.startsWith('Loading ')) return null
   return <p className="py-8 text-center text-sm text-[#8b93ad]">{text}</p>
 }
 

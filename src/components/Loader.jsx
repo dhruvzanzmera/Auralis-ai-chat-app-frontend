@@ -12,9 +12,8 @@ function Loader() {
         A
       </div>
 
-      {/* Typing indicator */}
       <div
-        className="flex items-center gap-1.5 rounded-3xl rounded-tl-lg px-5 py-4"
+        className="flex items-center gap-3 rounded-3xl rounded-tl-lg px-5 py-4"
         style={{
           background: '#ffffff',
           border: '1px solid #e8eaf6',
@@ -45,6 +44,7 @@ function Loader() {
             animationDelay: '0.4s',
           }}
         />
+          <span className="text-sm font-medium" style={{ color: '#68718b' }}>Auralis is thinking…</span>
       </div>
     </div>
   )

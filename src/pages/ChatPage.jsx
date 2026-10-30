@@ -11,9 +11,12 @@ function ChatPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [chats, setChats] = useState([])
+  const [chatsLoading, setChatsLoading] = useState(true)
   const [activeChatId, setActiveChatId] = useState(null)
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
+  const [openingChatId, setOpeningChatId] = useState(null)
+  const [loggingOut, setLoggingOut] = useState(false)
   const [regeneratingIndex, setRegeneratingIndex] = useState(null)
   const [error, setError] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -33,6 +36,8 @@ function ChatPage() {
         if (!cancelled) setChats(data)
       } catch {
         if (!cancelled) setError('Could not load your conversations. Check that the server is running.')
+      } finally {
+        if (!cancelled) setChatsLoading(false)
       }
     }
     loadChats()
@@ -57,15 +62,18 @@ function ChatPage() {
   const closeNavigation = useCallback(() => setSidebarOpen(false), [])
 
   const selectChat = async (chatId) => {
-    if (loading) return
+    if (loading || openingChatId) return
     setError('')
     setSidebarOpen(false)
+    setOpeningChatId(chatId)
     try {
       const { data } = await chatApi.get(`/chats/${chatId}`)
       setActiveChatId(data._id)
       setMessages(data.messages)
     } catch {
       setError('Could not open this conversation. Please try again.')
+    } finally {
+      setOpeningChatId(null)
     }
   }
 
@@ -113,11 +121,15 @@ function ChatPage() {
   }
 
   const handleLogout = async () => {
+    if (loggingOut) return
+    setLoggingOut(true)
     try {
       await logout()
       navigate('/login', { replace: true })
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Could not sign out. Please try again.')
+    } finally {
+      setLoggingOut(false)
     }
   }
 
@@ -167,6 +179,9 @@ function ChatPage() {
 
       <Sidebar
         chats={chats}
+        chatsLoading={chatsLoading}
+        navigationBusy={loading || Boolean(openingChatId)}
+        openingChatId={openingChatId}
         activeChatId={activeChatId}
         open={sidebarOpen}
         collapsed={sidebarCollapsed}
@@ -209,8 +224,11 @@ function ChatPage() {
               <UserIcon />
             </Link>
             {user?.role === 'ADMIN' && <Link to="/admin" className="rounded-lg px-2.5 py-2 text-xs font-medium text-[#5c6bc0] transition hover:bg-[#eef0fb]">Admin</Link>}
-            <button onClick={handleLogout} aria-label="Sign out" title="Sign out" className="rounded-lg p-2 text-[#7986a8] transition hover:bg-[#fce8e8] hover:text-[#c62828]">
-              <LogoutIcon />
+            <button onClick={handleLogout} disabled={loggingOut} aria-label={loggingOut ? 'Signing out' : 'Sign out'} title={loggingOut ? 'Signing out…' : 'Sign out'} aria-busy={loggingOut} className="flex h-10 w-10 items-center justify-center rounded-lg p-2 text-[#7986a8] transition hover:bg-[#fce8e8] hover:text-[#c62828] disabled:cursor-wait disabled:opacity-60">
+              {loggingOut
+                ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                : <LogoutIcon />
+              }
             </button>
           </div>
         </header>
@@ -218,12 +236,13 @@ function ChatPage() {
         <ChatWindow
           messages={messages}
           loading={loading}
+          loadingChat={Boolean(openingChatId)}
           error={error}
           onSuggestion={sendMessage}
           onEditMessage={editMessage}
           regeneratingIndex={regeneratingIndex}
         />
-        <ChatInput onSend={sendMessage} disabled={loading} />
+        <ChatInput onSend={sendMessage} disabled={loading || Boolean(openingChatId)} loading={loading} />
       </main>
     </div>
   )

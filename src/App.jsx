@@ -10,10 +10,11 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import LoadingIndicator from './components/LoadingIndicator'
 
 function HomeRedirect() {
   const { user, loading } = useAuth()
-  if (loading) return <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc] text-sm text-[#7986a8]">Loading your secure workspace…</main>
+  if (loading) return <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc]"><LoadingIndicator label="Verifying your secure session…" size="lg" /></main>
   return <Navigate to={user ? (user.role === 'ADMIN' ? '/admin' : '/chat') : '/login'} replace />
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
+function Sidebar({ chats, chatsLoading, navigationBusy, openingChatId, activeChatId, open, collapsed, onClose, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
   const [editingChatId, setEditingChatId] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [saving, setSaving] = useState(false)
@@ -142,7 +142,8 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
       <button
         id="new-chat-btn"
         onClick={onNewChat}
-        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-150"
+        disabled={navigationBusy}
+        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 disabled:cursor-wait disabled:opacity-60"
         style={{
           background: 'linear-gradient(135deg, #667eea18, #764ba212)',
           border: '1px solid #e0e3f7',
@@ -175,6 +176,12 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
           Recent
         </p>
         <div className="space-y-0.5">
+          {chatsLoading && (
+            <p className="flex items-center gap-2 px-2 py-4 text-xs" style={{ color: '#8b93ad' }} role="status">
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />
+              Loading conversations…
+            </p>
+          )}
           {chats.map((chat) => (
             <div
               key={chat._id}
@@ -201,9 +208,13 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
                     title="Save"
                     type="submit"
                     disabled={!draftTitle.trim() || saving}
+                    aria-busy={saving}
                     className="rounded-lg p-1.5 text-[#5c6bc0] hover:bg-[#eef0fb] disabled:opacity-50"
                   >
-                    <CheckIcon />
+                    {saving
+                      ? <span className="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      : <CheckIcon />
+                    }
                   </button>
                   <button
                     aria-label="Cancel rename"
@@ -220,10 +231,15 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
                   <button
                     title={chat.title}
                     onClick={() => onSelectChat(chat._id)}
-                    className="min-h-10 min-w-0 flex-1 truncate py-1.5 text-left text-[13px] font-medium"
+                    disabled={navigationBusy}
+                    aria-busy={openingChatId === chat._id}
+                    className="flex min-h-10 min-w-0 flex-1 items-center gap-2 truncate py-1.5 text-left text-[13px] font-medium disabled:cursor-wait disabled:opacity-70"
                     style={{ color: activeChatId === chat._id ? '#3949ab' : '#4a5580' }}
                   >
-                    {chat.title || 'New conversation'}
+                    {openingChatId === chat._id && (
+                      <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />
+                    )}
+                    <span className="truncate">{chat.title || 'New conversation'}</span>
                   </button>
                   <button
                     aria-label={`Rename ${chat.title || 'conversation'}`}
@@ -245,7 +261,7 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
               )}
             </div>
           ))}
-          {chats.length === 0 && (
+          {!chatsLoading && chats.length === 0 && (
             <p className="px-2 py-4 text-center text-xs" style={{ color: '#b0bcd8' }}>
               Your conversations will appear here.
             </p>
@@ -313,8 +329,10 @@ function Sidebar({ chats, activeChatId, open, collapsed, onClose, onNewChat, onS
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="rounded-lg bg-[#d32f2f] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#b71c1c] disabled:cursor-wait disabled:opacity-60"
+                aria-busy={deleting}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#d32f2f] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#b71c1c] disabled:cursor-wait disabled:opacity-60"
               >
+                {deleting && <span aria-hidden="true" className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
                 {deleting ? 'Deleting…' : 'Delete conversation'}
               </button>
             </div>

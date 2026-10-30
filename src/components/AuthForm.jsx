@@ -96,7 +96,8 @@ function AuthForm({ mode }) {
           {mode === 'reset' && <Field label="New password" name="newPassword" value={form.newPassword} onChange={update} type="password" autoComplete="new-password" required minLength={10} maxLength={128} />}
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-800">{notice}</p>}
-          <button disabled={busy} className="w-full rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-105 disabled:cursor-wait disabled:opacity-60">
+          <button disabled={busy} aria-busy={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-105 disabled:cursor-wait disabled:opacity-60">
+            {busy && <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
             {busy ? 'Please wait…' : heading.submit}
           </button>
         </form>

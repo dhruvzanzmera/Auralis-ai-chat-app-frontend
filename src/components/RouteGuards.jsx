@@ -1,8 +1,9 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import LoadingIndicator from './LoadingIndicator'
 
 function LoadingScreen() {
-  return <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc] text-sm text-[#7986a8]">Loading your secure workspace…</main>
+  return <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc]"><LoadingIndicator label="Verifying your secure session…" size="lg" /></main>
 }
 
 export function RequireAuth() {

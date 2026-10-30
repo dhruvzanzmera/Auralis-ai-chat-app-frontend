@@ -72,8 +72,10 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
                   <button
                     type="submit"
                     disabled={!draft.trim() || saving || disabled}
-                    className="rounded-lg bg-[#5c6bc0] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#4b5ab0] disabled:opacity-50"
+                    aria-busy={saving}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#5c6bc0] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#4b5ab0] disabled:opacity-50"
                   >
+                    {saving && <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
                     {saving ? 'Updating…' : 'Update'}
                   </button>
                 </div>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-function ChatInput({ onSend, disabled }) {
+function ChatInput({ onSend, disabled, loading = disabled }) {
   const [value, setValue] = useState('')
   const textareaRef = useRef(null)
 
@@ -65,7 +65,8 @@ function ChatInput({ onSend, disabled }) {
             id="send-btn"
             onClick={submit}
             disabled={!canSend}
-            aria-label="Send message"
+            aria-label={loading ? 'Auralis is responding' : disabled ? 'Conversation is loading' : 'Send message'}
+            aria-busy={loading || undefined}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:brightness-105"
             style={{
               background: canSend
@@ -77,7 +78,7 @@ function ChatInput({ onSend, disabled }) {
               transform: canSend ? 'scale(1)' : 'scale(0.95)',
             }}
           >
-            {disabled
+            {loading
               ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               : <SendIcon />
             }

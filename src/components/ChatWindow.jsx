@@ -9,17 +9,25 @@ const suggestions = [
   { icon: '🧠', title: 'Solve a problem', detail: 'Debug my code or work through a hard problem' },
 ]
 
-function ChatWindow({ messages, loading, error, onSuggestion, onEditMessage, regeneratingIndex }) {
+function ChatWindow({ messages, loading, loadingChat, error, onSuggestion, onEditMessage, regeneratingIndex }) {
   const bottomRef = useRef(null)
 
   useEffect(() => {
     const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
     bottomRef.current?.scrollIntoView({ behavior, block: 'end' })
-  }, [messages, loading])
+  }, [messages, loading, loadingChat])
 
   return (
     <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-      {messages.length === 0 ? (
+      {loadingChat ? (
+        <div className="flex min-h-full flex-col items-center justify-center gap-4 px-5 text-center" role="status" aria-live="polite">
+          <span className="h-9 w-9 animate-spin rounded-full border-[3px] border-[#e0e3f7] border-t-[#667eea]" />
+          <div>
+            <p className="text-sm font-semibold text-[#394055]">Opening conversation</p>
+            <p className="mt-1 text-xs text-[#8b93ad]">Your messages will be here in a moment.</p>
+          </div>
+        </div>
+      ) : messages.length === 0 ? (
         <div className="mx-auto flex min-h-full max-w-3xl flex-col justify-center px-5 pb-10 pt-8 sm:px-6 sm:pb-12">
           {/* Welcome hero */}
           <div className="mb-2 flex items-center gap-3">

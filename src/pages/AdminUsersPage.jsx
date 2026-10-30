@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { chatApi } from '../api/chatApi'
+import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
 function AdminUsersPage() {
@@ -13,6 +14,7 @@ function AdminUsersPage() {
   const [loadingUserUsage, setLoadingUserUsage] = useState(false)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState('')
+  const [busyKind, setBusyKind] = useState('')
   const [loading, setLoading] = useState(true)
 
   const loadUsers = useCallback(async (page = 1) => {
@@ -34,6 +36,7 @@ function AdminUsersPage() {
   }, [loadUsers])
 
   const openUser = async (user) => {
+    setError('')
     setSelected(user)
     setUserUsage(null)
     setLoadingUserUsage(true)
@@ -53,6 +56,7 @@ function AdminUsersPage() {
 
   const updateUser = async (user, kind, value) => {
     setBusyId(user._id)
+    setBusyKind(kind)
     setError('')
     try {
       const { data } = await chatApi.patch(`/admin/users/${user._id}/${kind}`,
@@ -64,6 +68,7 @@ function AdminUsersPage() {
       setError(requestError.response?.data?.message || `Could not update user ${kind}.`)
     } finally {
       setBusyId('')
+      setBusyKind('')
     }
   }
 
@@ -108,10 +113,19 @@ function AdminUsersPage() {
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-xs">
               <thead><tr className="border-b border-[#eef0f8] text-[#8b93ad]"><th className="pb-3 font-medium">User</th><th className="pb-3 font-medium">Role</th><th className="pb-3 font-medium">Status</th><th className="pb-3 font-medium">Registered</th><th className="pb-3 font-medium">Last activity</th><th className="pb-3 text-right font-medium">Actions</th></tr></thead>
-              <tbody>{loading ? <tr><td colSpan="6" className="py-8" /></tr> : users.map((user) => <tr key={user._id} className="border-b border-[#f4f5fa] text-[#394055]">
+              <tbody>{loading ? <tr><td colSpan="6" className="py-8"><LoadingIndicator label="Loading accounts…" /></td></tr> : users.map((user) => <tr key={user._id} className="border-b border-[#f4f5fa] text-[#394055]">
                 <td className="py-3"><button onClick={() => openUser(user)} className="text-left hover:text-[#5c6bc0]"><span className="block font-semibold">{user.name}</span><span className="mt-0.5 block text-[#8b93ad]">{user.email}</span></button></td>
                 <td className="py-3">{user.role || 'USER'}</td><td className="py-3 capitalize">{user.status || 'active'}</td><td className="py-3">{formatDate(user.createdAt)}</td><td className="py-3">{formatDate(user.lastActivityAt || user.lastActiveAt)}</td>
-                <td className="py-3 text-right"><button disabled={busyId === user._id} onClick={() => updateUser(user, 'status', (user.status || 'active') === 'blocked' ? 'active' : 'blocked')} className="mr-2 rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">{user.status === 'blocked' ? 'Unblock' : 'Block'}</button><button disabled={busyId === user._id} onClick={() => updateUser(user, 'role', user.role === 'ADMIN' ? 'USER' : 'ADMIN')} className="rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">{user.role === 'ADMIN' ? 'Make user' : 'Make admin'}</button></td>
+                <td className="py-3 text-right">
+                  <button disabled={busyId === user._id} aria-busy={busyId === user._id && busyKind === 'status'} onClick={() => updateUser(user, 'status', (user.status || 'active') === 'blocked' ? 'active' : 'blocked')} className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">
+                    {busyId === user._id && busyKind === 'status' && <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />}
+                    {busyId === user._id && busyKind === 'status' ? 'Updating…' : user.status === 'blocked' ? 'Unblock' : 'Block'}
+                  </button>
+                  <button disabled={busyId === user._id} aria-busy={busyId === user._id && busyKind === 'role'} onClick={() => updateUser(user, 'role', user.role === 'ADMIN' ? 'USER' : 'ADMIN')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0e3f7] px-2.5 py-1.5 hover:bg-[#f5f6ff] disabled:opacity-50">
+                    {busyId === user._id && busyKind === 'role' && <span aria-hidden="true" className="h-3 w-3 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />}
+                    {busyId === user._id && busyKind === 'role' ? 'Updating…' : user.role === 'ADMIN' ? 'Make user' : 'Make admin'}
+                  </button>
+                </td>
               </tr>)}</tbody>
             </table>
             {!loading && !users.length && <p className="py-8 text-center text-sm text-[#8b93ad]">No users match these filters.</p>}
@@ -139,7 +153,9 @@ function UserDetails({ user, usage, loadingUsage, onClose }) {
         <Metric title="Tokens" value={usage.totalTokens ?? usage.tokens?.totalTokens ?? 0} />
         <Metric title="Today" value={usage.today?.prompts ?? usage.dailyPrompts ?? 0} />
         <Metric title="This week" value={usage.week?.prompts ?? usage.weeklyPrompts ?? 0} />
-      </div> : loadingUsage ? null : <p className="mt-3 text-sm text-[#8b93ad]">Could not load usage data.</p>}
+      </div> : loadingUsage
+        ? <LoadingIndicator label="Loading user usage…" className="min-h-32" />
+        : <p className="mt-3 text-sm text-[#8b93ad]">Could not load usage data.</p>}
       {usage?.recentRequests?.length > 0 && <div className="mt-4 space-y-2">{usage.recentRequests.slice(0, 8).map((request, index) => <div key={request._id || index} className="flex justify-between gap-3 border-t border-[#f0f2f8] pt-2 text-xs"><span className="truncate text-[#566078]">{request.promptText || request.model || 'AI request'}</span><span className="shrink-0 text-[#8b93ad]">{Number(request.totalTokens || 0).toLocaleString()} tokens</span></div>)}</div>}
     </section>
   </div>
