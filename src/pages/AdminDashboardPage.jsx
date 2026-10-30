@@ -7,7 +7,6 @@ import PageHeader from '../components/PageHeader'
 function AdminDashboardPage() {
   const navigate = useNavigate()
   const [range, setRange] = useState('7d')
-  const [bucket, setBucket] = useState('daily')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
   const [dashboard, setDashboard] = useState(null)
@@ -18,13 +17,12 @@ function AdminDashboardPage() {
   const loadDashboard = useCallback(async () => {
     if (range === 'custom' && (!customStart || !customEnd)) return
     const params = range === 'custom'
-      ? { range, startDate: customStart, endDate: customEnd, bucket }
-      : { range, bucket }
-    const [overview, prompts, registrations, tokens, models, errors] = await Promise.all([
+      ? { range, startDate: customStart, endDate: customEnd }
+      : { range }
+    const [overview, prompts, registrations, models, errors] = await Promise.all([
       chatApi.get('/admin/dashboard', { params }),
       chatApi.get('/admin/analytics/prompts', { params }),
       chatApi.get('/admin/analytics/users', { params }),
-      chatApi.get('/admin/analytics/tokens', { params }),
       chatApi.get('/admin/analytics/models', { params }),
       chatApi.get('/admin/analytics/errors', { params }),
     ])
@@ -32,11 +30,10 @@ function AdminDashboardPage() {
     setAnalytics({
       prompts: prompts.data,
       registrations: registrations.data,
-      tokens: tokens.data,
       models: models.data,
       errors: errors.data,
     })
-  }, [range, customStart, customEnd, bucket])
+  }, [range, customStart, customEnd])
 
   const loadData = useCallback(async () => {
     try {
@@ -86,9 +83,6 @@ function AdminDashboardPage() {
             <input aria-label="Start date" type="date" value={customStart} onChange={(event) => updateFilter(setCustomStart, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
             <input aria-label="End date" type="date" value={customEnd} onChange={(event) => updateFilter(setCustomEnd, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
           </>}
-          <select aria-label="Chart interval" value={bucket} onChange={(event) => updateFilter(setBucket, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-3 py-2 text-sm text-[#394055]">
-            <option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option>
-          </select>
           <button onClick={() => navigate('/chat')} className="rounded-xl border border-[#e0e3f7] bg-white px-4 py-2 text-sm font-medium text-[#4a5580] hover:bg-[#f5f6ff]">Back to chat</button>
         </div>
       </div>
@@ -129,10 +123,6 @@ function AdminDashboardPage() {
           </div> : loadingData
             ? <LoadingIndicator label="Loading user activity…" className="min-h-40" />
             : <EmptyState text="No usage leaders to show yet." />}
-          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#f0f2f8] pt-4">
-            <MiniMetric label="Input tokens" value={metrics.inputTokens ?? metrics.tokens?.inputTokens ?? 0} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Output tokens" value={metrics.outputTokens ?? metrics.tokens?.outputTokens ?? 0} hasData={Boolean(dashboard)} />
-          </div>
         </section>
       </div>
 
@@ -155,8 +145,6 @@ function AdminDashboardPage() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <MiniMetric label="Successful" value={errorSummary.successfulRequests ?? errorSummary.success ?? errorSummary.succeeded ?? metrics.successfulRequests ?? 0} hasData={Boolean(dashboard)} />
             <MiniMetric label="Failed" value={errorSummary.failedRequests ?? errorSummary.failed ?? metrics.failedRequests ?? 0} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Input tokens" value={analytics.tokens?.inputTokens ?? analytics.tokens?.totals?.inputTokens ?? metrics.inputTokens ?? 0} hasData={Boolean(dashboard)} />
-            <MiniMetric label="Output tokens" value={analytics.tokens?.outputTokens ?? analytics.tokens?.totals?.outputTokens ?? metrics.outputTokens ?? 0} hasData={Boolean(dashboard)} />
           </div>
           {errorSummary.errors?.length > 0 && <div className="mt-3 border-t border-[#f0f2f8] pt-3">{errorSummary.errors.slice(0, 3).map((item, index) => <p key={item.code || index} className="py-1 text-xs text-[#7b849a]">{item.code || item.errorCode || 'Error'} · {item.count ?? 0}</p>)}</div>}
         </section>

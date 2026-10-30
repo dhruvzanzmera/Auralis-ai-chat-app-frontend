@@ -148,21 +148,25 @@ function UserDetails({ user, usage, loadingUsage, onClose }) {
       <div className="flex justify-between gap-4"><div><h2 id="user-details-title" className="text-lg font-bold text-[#1a1a2e]">{user.name}</h2><p className="text-sm text-[#8b93ad]">{user.email}</p></div><button onClick={onClose} aria-label="Close details" className="h-8 w-8 rounded-lg text-[#7986a8] hover:bg-[#f0f2ff]">×</button></div>
       <dl className="mt-5 grid grid-cols-2 gap-3 text-sm"><DetailItem label="Role" value={user.role} /><DetailItem label="Status" value={user.status} /><DetailItem label="Joined" value={formatDate(user.createdAt)} /><DetailItem label="Last activity" value={formatDate(user.lastActivityAt || user.lastActiveAt)} /></dl>
       <h3 className="mt-6 font-semibold text-[#1a1a2e]">Usage</h3>
-      {usage ? <div className="mt-3 grid grid-cols-2 gap-3">
-        <Metric title="Total prompts" value={usage.totalPrompts ?? usage.totalRequests ?? 0} />
-        <Metric title="Tokens" value={usage.totalTokens ?? usage.tokens?.totalTokens ?? 0} />
-        <Metric title="Today" value={usage.today?.prompts ?? usage.dailyPrompts ?? 0} />
-        <Metric title="This week" value={usage.week?.prompts ?? usage.weeklyPrompts ?? 0} />
-      </div> : loadingUsage
+      {usage ? <DailyPromptChart rows={usage.series || []} /> : loadingUsage
         ? <LoadingIndicator label="Loading user usage…" className="min-h-32" />
         : <p className="mt-3 text-sm text-[#8b93ad]">Could not load usage data.</p>}
-      {usage?.recentRequests?.length > 0 && <div className="mt-4 space-y-2">{usage.recentRequests.slice(0, 8).map((request, index) => <div key={request._id || index} className="flex justify-between gap-3 border-t border-[#f0f2f8] pt-2 text-xs"><span className="truncate text-[#566078]">{request.promptText || request.model || 'AI request'}</span><span className="shrink-0 text-[#8b93ad]">{Number(request.totalTokens || 0).toLocaleString()} tokens</span></div>)}</div>}
     </section>
   </div>
 }
 
-function Metric({ title, value }) {
-  return <div className="rounded-xl border border-[#e8eaf6] bg-[#fcfcff] p-3"><p className="text-[10px] font-medium text-[#8b93ad]">{title}</p><p className="mt-1 text-lg font-bold text-[#272b4a]">{typeof value === 'number' ? value.toLocaleString() : value}</p></div>
+function DailyPromptChart({ rows }) {
+  const maximum = Math.max(1, ...rows.map((row) => Number(row.count || 0)))
+  return <div className="mt-3">
+    <p className="text-xs text-[#8b93ad]">Prompt count · last 7 days · UTC</p>
+    <div className="mt-3 flex h-28 items-end gap-2 border-b border-[#edf0f8] pb-1">
+      {rows.map((row) => <div key={row.date} className="flex h-full min-w-0 flex-1 flex-col justify-end" title={`${row.date}: ${row.count} prompts`}>
+        <span className="mb-1 text-center text-[10px] text-[#8b93ad]">{row.count}</span>
+        <div className="mx-auto w-full max-w-7 rounded-t bg-gradient-to-t from-[#764ba2] to-[#667eea]" style={{ height: `${Math.max(3, Number(row.count || 0) / maximum * 75)}%` }} />
+        <span className="mt-2 truncate text-center text-[9px] text-[#8b93ad]">{new Date(`${row.date}T00:00:00Z`).toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' })}</span>
+      </div>)}
+    </div>
+  </div>
 }
 
 function DetailItem({ label, value }) {
