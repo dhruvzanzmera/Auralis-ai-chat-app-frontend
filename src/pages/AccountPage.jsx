@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { chatApi } from '../api/chatApi'
+import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
@@ -9,6 +9,7 @@ function AccountPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [dailySeries, setDailySeries] = useState([])
+  const [dailyUsageMessage, setDailyUsageMessage] = useState('')
   const [form, setForm] = useState({ currentPassword: '', newPassword: '' })
   const [busy, setBusy] = useState(false)
   const [loadingUsage, setLoadingUsage] = useState(true)
@@ -20,13 +21,14 @@ function AccountPage() {
     try {
       const { data } = await chatApi.get('/usage/me/daily', { params: { range: '7d' } })
       setDailySeries(data.series || [])
+      setDailyUsageMessage(data.message || '')
     } finally {
       setLoadingUsage(false)
     }
   }, [])
 
   useEffect(() => {
-    loadUsage().catch((requestError) => setUsageError(requestError.response?.data?.message || 'Could not load daily prompt activity.'))
+    loadUsage().catch((requestError) => setUsageError(getApiMessage(requestError)))
   }, [loadUsage])
 
   const changePassword = async (event) => {
@@ -36,10 +38,10 @@ function AccountPage() {
     setNotice('')
     try {
       const { data } = await chatApi.put('/auth/change-password', form)
-      setNotice(data.message || 'Password changed successfully.')
+      setNotice(data.message)
       setForm({ currentPassword: '', newPassword: '' })
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not change your password.')
+      setError(getApiMessage(requestError))
     } finally {
       setBusy(false)
     }
@@ -58,7 +60,7 @@ function AccountPage() {
       <section className="mt-5 rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
         <h2 className="font-semibold text-[#1a1a2e]">Daily prompt activity</h2>
         <p className="mt-1 text-xs text-[#8b93ad]">Last 7 days · UTC</p>
-        <DailyChart rows={dailySeries} loading={loadingUsage} error={usageError} />
+        <DailyChart rows={dailySeries} message={dailyUsageMessage} loading={loadingUsage} error={usageError} />
       </section>
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         <section className="overflow-hidden rounded-2xl border border-[#e8eaf6] bg-white shadow-sm">
@@ -110,8 +112,11 @@ function EmptyState({ text }) {
   return <p className="py-8 text-center text-sm text-[#8b93ad]">{text}</p>
 }
 
-function DailyChart({ rows, loading, error }) {
+function DailyChart({ rows, message, loading, error }) {
   if (error) return <p role="alert" className="py-8 text-center text-sm text-red-700">{error}</p>
+  if (!loading && rows.length && rows.every((row) => Number(row.count || 0) === 0)) {
+    return <EmptyState text={message} />
+  }
   const maximum = Math.max(1, ...rows.map((row) => Number(row.count || 0)))
   return rows.length ? <div className="mt-4 flex h-32 items-end gap-2 border-b border-[#edf0f8] pb-1">
     {rows.map((row) => <div key={row.date} className="flex h-full min-w-0 flex-1 flex-col justify-end" title={`${row.date}: ${row.count} prompts`}>
@@ -121,7 +126,7 @@ function DailyChart({ rows, loading, error }) {
     </div>)}
   </div> : loading
     ? <LoadingIndicator label="Loading daily activity…" className="min-h-32" />
-    : <EmptyState text="No daily activity to show yet." />
+    : <EmptyState text={message} />
 }
 
 function formatDate(value) {

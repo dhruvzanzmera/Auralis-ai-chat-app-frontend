@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { chatApi } from '../api/chatApi'
+import { chatApi, getApiMessage } from '../api/chatApi'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
@@ -13,6 +13,8 @@ function AdminUsersPage() {
   const [userUsage, setUserUsage] = useState(null)
   const [loadingUserUsage, setLoadingUserUsage] = useState(false)
   const [error, setError] = useState('')
+  const [emptyMessage, setEmptyMessage] = useState('')
+  const [usageError, setUsageError] = useState('')
   const [busyId, setBusyId] = useState('')
   const [busyKind, setBusyKind] = useState('')
   const [loading, setLoading] = useState(true)
@@ -22,13 +24,14 @@ function AdminUsersPage() {
       params: { page, limit: 10, search, role: role || undefined, status: status || undefined },
     })
     setUsers(Array.isArray(data) ? data : data.users || data.items || [])
+    setEmptyMessage(Array.isArray(data) ? '' : data.message || '')
     setPagination(data.pagination || { page: data.page || page, pages: data.pages || 1, total: data.total || 0 })
   }, [role, search, status])
 
   useEffect(() => {
     let active = true
     loadUsers().catch((requestError) => {
-      if (active) setError(requestError.response?.data?.message || 'Could not load users.')
+      if (active) setError(getApiMessage(requestError))
     }).finally(() => {
       if (active) setLoading(false)
     })
@@ -39,6 +42,7 @@ function AdminUsersPage() {
     setError('')
     setSelected(user)
     setUserUsage(null)
+    setUsageError('')
     setLoadingUserUsage(true)
     try {
       const [{ data: details }, { data: usageData }] = await Promise.all([
@@ -48,7 +52,9 @@ function AdminUsersPage() {
       setSelected(details.user || details)
       setUserUsage(usageData)
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not load user usage.')
+      const message = getApiMessage(requestError)
+      setError(message)
+      setUsageError(message)
     } finally {
       setLoadingUserUsage(false)
     }
@@ -65,7 +71,7 @@ function AdminUsersPage() {
       setUsers((current) => current.map((item) => item._id === user._id ? { ...item, ...updated, [kind]: value } : item))
       setSelected((current) => current?._id === user._id ? { ...current, ...updated, [kind]: value } : current)
     } catch (requestError) {
-      setError(requestError.response?.data?.message || `Could not update user ${kind}.`)
+      setError(getApiMessage(requestError))
     } finally {
       setBusyId('')
       setBusyKind('')
@@ -75,6 +81,7 @@ function AdminUsersPage() {
   const changeFilter = (setter, value) => {
     setLoading(true)
     setUsers([])
+    setEmptyMessage('')
     setError('')
     setter(value)
   }
@@ -82,11 +89,12 @@ function AdminUsersPage() {
   const changePage = async (page) => {
     setLoading(true)
     setUsers([])
+    setEmptyMessage('')
     setError('')
     try {
       await loadUsers(page)
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not load users.')
+      setError(getApiMessage(requestError))
     } finally {
       setLoading(false)
     }
@@ -128,7 +136,7 @@ function AdminUsersPage() {
                 </td>
               </tr>)}</tbody>
             </table>
-            {!loading && !users.length && <p className="py-8 text-center text-sm text-[#8b93ad]">No users match these filters.</p>}
+            {!loading && !users.length && <p className="py-8 text-center text-sm text-[#8b93ad]">{emptyMessage}</p>}
           </div>
           <div className="mt-4 flex items-center justify-end gap-3 text-xs text-[#7986a8]">
             <button disabled={loading || pagination.page <= 1} onClick={() => changePage(pagination.page - 1)} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Previous</button>
@@ -136,26 +144,29 @@ function AdminUsersPage() {
             <button disabled={loading || pagination.page >= pagination.pages} onClick={() => changePage(pagination.page + 1)} className="rounded-lg border border-[#e0e3f7] px-3 py-1.5 disabled:opacity-40">Next</button>
           </div>
         </section>
-        {selected && <UserDetails user={selected} usage={userUsage} loadingUsage={loadingUserUsage} onClose={() => { setSelected(null); setUserUsage(null) }} />}
+        {selected && <UserDetails user={selected} usage={userUsage} usageError={usageError} loadingUsage={loadingUserUsage} onClose={() => { setSelected(null); setUserUsage(null); setUsageError('') }} />}
       </section>
     </main>
   )
 }
 
-function UserDetails({ user, usage, loadingUsage, onClose }) {
+function UserDetails({ user, usage, usageError, loadingUsage, onClose }) {
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a1a2e]/40 p-4" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
     <section role="dialog" aria-modal="true" aria-labelledby="user-details-title" className="max-h-[85vh] w-full max-w-lg overflow-auto rounded-2xl bg-white p-6 shadow-2xl">
       <div className="flex justify-between gap-4"><div><h2 id="user-details-title" className="text-lg font-bold text-[#1a1a2e]">{user.name}</h2><p className="text-sm text-[#8b93ad]">{user.email}</p></div><button onClick={onClose} aria-label="Close details" className="h-8 w-8 rounded-lg text-[#7986a8] hover:bg-[#f0f2ff]">×</button></div>
       <dl className="mt-5 grid grid-cols-2 gap-3 text-sm"><DetailItem label="Role" value={user.role} /><DetailItem label="Status" value={user.status} /><DetailItem label="Joined" value={formatDate(user.createdAt)} /><DetailItem label="Last activity" value={formatDate(user.lastActivityAt || user.lastActiveAt)} /></dl>
       <h3 className="mt-6 font-semibold text-[#1a1a2e]">Usage</h3>
-      {usage ? <DailyPromptChart rows={usage.series || []} /> : loadingUsage
+      {usage ? <DailyPromptChart rows={usage.series || []} message={usage.message} /> : loadingUsage
         ? <LoadingIndicator label="Loading user usage…" className="min-h-32" />
-        : <p className="mt-3 text-sm text-[#8b93ad]">Could not load usage data.</p>}
+        : usageError && <p role="alert" className="mt-3 text-sm text-red-700">{usageError}</p>}
     </section>
   </div>
 }
 
-function DailyPromptChart({ rows }) {
+function DailyPromptChart({ rows, message }) {
+  if (rows.length && rows.every((row) => Number(row.count || 0) === 0)) {
+    return <p className="mt-3 text-sm text-[#8b93ad]">{message}</p>
+  }
   const maximum = Math.max(1, ...rows.map((row) => Number(row.count || 0)))
   return <div className="mt-3">
     <p className="text-xs text-[#8b93ad]">Prompt count · last 7 days · UTC</p>

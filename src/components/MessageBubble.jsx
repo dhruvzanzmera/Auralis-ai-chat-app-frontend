@@ -122,7 +122,6 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
             <div className="mt-3 flex items-center gap-2 border-t border-[#edf0f6] pt-2.5">
               <button
                 type="button"
-                aria-live="polite"
                 onClick={copyMessage}
                 className="flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#68718b] transition hover:bg-[#f2f4fb] hover:text-[#424aa6]"
                 style={{
@@ -131,7 +130,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
                 }}
               >
                 {copied ? <CheckIcon /> : <CopyIcon />}
-                {copied ? 'Copied!' : 'Copy'}
+                {!copied && 'Copy'}
               </button>
             </div>
           </div>

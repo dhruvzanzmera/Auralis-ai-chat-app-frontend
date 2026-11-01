@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { chatApi } from '../api/chatApi'
+import { chatApi, getApiMessage } from '../api/chatApi'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
@@ -39,7 +39,7 @@ function AdminDashboardPage() {
     try {
       await loadDashboard()
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not load administrator analytics.')
+      setError(getApiMessage(requestError))
     } finally {
       setLoadingData(false)
     }
@@ -63,6 +63,7 @@ function AdminDashboardPage() {
   const registrationRows = extractRows(analytics.registrations)
   const modelRows = extractRows(analytics.models)
   const errorSummary = analytics.errors?.summary || analytics.errors || {}
+  const hasPromptActivity = chartRows.some((row) => Number(row.count ?? row.prompts ?? row.total ?? 0) > 0)
   const today = metrics.promptsToday ?? metrics.todayPrompts ?? 0
   const activeUsers = metrics.activeUsers ?? 0
   const totalPrompts = metrics.totalPrompts ?? metrics.promptCount ?? 0
@@ -102,7 +103,7 @@ function AdminDashboardPage() {
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#1a1a2e]">Prompt activity</h2><p className="mt-1 text-xs text-[#8b93ad]">Requests per reporting day · UTC</p></div><span className="rounded-full bg-[#f0f2ff] px-2.5 py-1 text-xs text-[#5c6bc0]">{range}</span></div>
-          {chartRows.length ? <div className="mt-5 flex h-44 items-end gap-2 border-b border-[#edf0f8] pb-1">
+          {hasPromptActivity ? <div className="mt-5 flex h-44 items-end gap-2 border-b border-[#edf0f8] pb-1">
             {chartRows.map((item, index) => {
               const count = Number(item.count ?? item.prompts ?? item.total ?? 0)
               const maximum = Math.max(1, ...chartRows.map((row) => Number(row.count ?? row.prompts ?? row.total ?? 0)))
@@ -114,7 +115,7 @@ function AdminDashboardPage() {
             })}
           </div> : loadingData
             ? <LoadingIndicator label="Loading prompt activity…" className="min-h-44" />
-            : <EmptyState text="No prompt activity in this range." />}
+            : <EmptyState text={analytics.prompts?.message} />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Recent usage leaders</h2>
@@ -122,7 +123,7 @@ function AdminDashboardPage() {
             {dashboard.mostActiveUsers.slice(0, 6).map((item, index) => <div key={item._id || index} className="flex justify-between gap-3 py-3 text-sm"><span className="truncate text-[#394055]">{item.name || item.email || 'User'}</span><span className="font-semibold text-[#5c6bc0]">{item.prompts ?? item.count ?? item.totalPrompts ?? 0} prompts</span></div>)}
           </div> : loadingData
             ? <LoadingIndicator label="Loading user activity…" className="min-h-40" />
-            : <EmptyState text="No usage leaders to show yet." />}
+            : <EmptyState text={dashboard?.messages?.mostActiveUsers} />}
         </section>
       </div>
 
@@ -132,13 +133,13 @@ function AdminDashboardPage() {
           <p className="mt-1 text-xs text-[#8b93ad]">Accounts created within the selected range</p>
           {registrationRows.length ? <MiniBarChart rows={registrationRows} /> : loadingData
             ? <LoadingIndicator label="Loading registrations…" className="min-h-32" />
-            : <EmptyState text="No registrations in this range." />}
+            : <EmptyState text={analytics.registrations?.message} />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Models by usage</h2>
           {modelRows.length ? <div className="mt-3 space-y-3">{modelRows.slice(0, 6).map((item, index) => <div key={item.model || item._id || index} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-[#566078]">{item.model || item.name || item._id || 'Model'}</span><span className="font-semibold text-[#5c6bc0]">{Number(item.count ?? item.prompts ?? item.total ?? 0).toLocaleString()}</span></div>)}</div> : loadingData
             ? <LoadingIndicator label="Loading model usage…" className="min-h-32" />
-            : <EmptyState text="No model usage in this range." />}
+            : <EmptyState text={analytics.models?.message} />}
         </section>
         <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
           <h2 className="font-semibold text-[#1a1a2e]">Request outcomes</h2>

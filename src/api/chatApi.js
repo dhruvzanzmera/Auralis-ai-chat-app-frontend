@@ -5,3 +5,13 @@ export const chatApi = axios.create({
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 })
+
+export function getApiMessage(error) {
+  const message = error?.response?.data?.message
+  if (typeof message === 'string' && message.trim()) return message
+  console.error('API request failed without a backend message.', {
+    code: error?.code || 'UNKNOWN',
+    status: error?.response?.status || null,
+  })
+  return ''
+}

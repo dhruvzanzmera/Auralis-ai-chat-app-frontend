@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-function Sidebar({ chats, chatsLoading, navigationBusy, openingChatId, activeChatId, open, collapsed, onClose, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
+function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openingChatId, activeChatId, open, collapsed, onClose, onNewChat, onSelectChat, onDeleteChat, onRenameChat }) {
   const [editingChatId, setEditingChatId] = useState(null)
   const [draftTitle, setDraftTitle] = useState('')
   const [saving, setSaving] = useState(false)
@@ -263,7 +263,7 @@ function Sidebar({ chats, chatsLoading, navigationBusy, openingChatId, activeCha
           ))}
           {!chatsLoading && chats.length === 0 && (
             <p className="px-2 py-4 text-center text-xs" style={{ color: '#b0bcd8' }}>
-              Your conversations will appear here.
+              {chatsEmptyMessage}
             </p>
           )}
         </div>
@@ -311,7 +311,7 @@ function Sidebar({ chats, chatsLoading, navigationBusy, openingChatId, activeCha
               <div>
                 <h2 id="delete-chat-title" className="text-base font-semibold text-[#1a1a2e]">Delete conversation?</h2>
                 <p id="delete-chat-description" className="mt-1 text-sm leading-5 text-[#68718b]">
-                  “{deleteTarget.title || 'New conversation'}” and its messages will be permanently deleted.
+                  {deleteTarget.deleteConfirmationMessage}
                 </p>
               </div>
             </div>

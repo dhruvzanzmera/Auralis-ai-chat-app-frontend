@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { chatApi } from '../api/chatApi'
+import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import Sidebar from '../components/Sidebar'
 import ChatWindow from '../components/ChatWindow'
@@ -11,6 +11,7 @@ function ChatPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [chats, setChats] = useState([])
+  const [chatsEmptyMessage, setChatsEmptyMessage] = useState('')
   const [chatsLoading, setChatsLoading] = useState(true)
   const [activeChatId, setActiveChatId] = useState(null)
   const [messages, setMessages] = useState([])
@@ -25,7 +26,8 @@ function ChatPage() {
 
   const refreshChats = useCallback(async () => {
     const { data } = await chatApi.get('/chats')
-    setChats(data)
+    setChats(Array.isArray(data) ? data : data.chats || [])
+    setChatsEmptyMessage(Array.isArray(data) ? '' : data.message || '')
   }, [])
 
   useEffect(() => {
@@ -33,9 +35,12 @@ function ChatPage() {
     const loadChats = async () => {
       try {
         const { data } = await chatApi.get('/chats')
-        if (!cancelled) setChats(data)
-      } catch {
-        if (!cancelled) setError('Could not load your conversations. Check that the server is running.')
+        if (!cancelled) {
+          setChats(Array.isArray(data) ? data : data.chats || [])
+          setChatsEmptyMessage(Array.isArray(data) ? '' : data.message || '')
+        }
+      } catch (requestError) {
+        if (!cancelled) setError(getApiMessage(requestError))
       } finally {
         if (!cancelled) setChatsLoading(false)
       }
@@ -70,8 +75,8 @@ function ChatPage() {
       const { data } = await chatApi.get(`/chats/${chatId}`)
       setActiveChatId(data._id)
       setMessages(data.messages)
-    } catch {
-      setError('Could not open this conversation. Please try again.')
+    } catch (requestError) {
+      setError(getApiMessage(requestError))
     } finally {
       setOpeningChatId(null)
     }
@@ -83,8 +88,8 @@ function ChatPage() {
       setChats((current) => current.filter((chat) => chat._id !== chatId))
       if (activeChatId === chatId) startNewChat()
       return true
-    } catch {
-      setError('Could not delete this conversation. Please try again.')
+    } catch (requestError) {
+      setError(getApiMessage(requestError))
       return false
     }
   }
@@ -94,12 +99,19 @@ function ChatPage() {
       const { data } = await chatApi.patch(`/chats/${chatId}`, { title })
       setChats((current) => current
         .map((chat) => (
-          chat._id === chatId ? { ...chat, title: data.title, updatedAt: data.updatedAt } : chat
+          chat._id === chatId
+            ? {
+                ...chat,
+                title: data.title,
+                updatedAt: data.updatedAt,
+                deleteConfirmationMessage: data.deleteConfirmationMessage,
+              }
+            : chat
         ))
         .sort((first, second) => new Date(second.updatedAt) - new Date(first.updatedAt)))
       return true
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not rename this conversation. Please try again.')
+      setError(getApiMessage(requestError))
       return false
     }
   }
@@ -114,7 +126,7 @@ function ChatPage() {
       setMessages((current) => [...current, data.aiMessage])
       await refreshChats()
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Something went wrong. Please try again.')
+      setError(getApiMessage(requestError))
     } finally {
       setLoading(false)
     }
@@ -127,7 +139,7 @@ function ChatPage() {
       await logout()
       navigate('/login', { replace: true })
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Could not sign out. Please try again.')
+      setError(getApiMessage(requestError))
     } finally {
       setLoggingOut(false)
     }
@@ -151,13 +163,13 @@ function ChatPage() {
       setRegeneratingIndex(null)
       try {
         await refreshChats()
-      } catch {
-        setError('Your prompt was updated, but the conversation list could not be refreshed.')
+      } catch (requestError) {
+        setError(getApiMessage(requestError))
       }
       return true
     } catch (requestError) {
       setMessages(previousMessages)
-      setError(requestError.response?.data?.message || 'Could not edit this prompt. Please try again.')
+      setError(getApiMessage(requestError))
       return false
     } finally {
       setLoading(false)
@@ -179,6 +191,7 @@ function ChatPage() {
 
       <Sidebar
         chats={chats}
+        chatsEmptyMessage={chatsEmptyMessage}
         chatsLoading={chatsLoading}
         navigationBusy={loading || Boolean(openingChatId)}
         openingChatId={openingChatId}

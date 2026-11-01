@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { getApiMessage } from '../api/chatApi'
 import { LogoutIcon, UserIcon } from './HeaderIcons'
 
 function PageHeader({ title, admin = false }) {
@@ -17,7 +18,7 @@ function PageHeader({ title, admin = false }) {
       await logout()
       navigate('/login', { replace: true })
     } catch (requestError) {
-      setLogoutError(requestError.response?.data?.message || 'Could not sign out. Please try again.')
+      setLogoutError(getApiMessage(requestError))
     } finally {
       setLoggingOut(false)
     }

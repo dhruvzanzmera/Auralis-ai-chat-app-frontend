@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { chatApi } from '../api/chatApi'
+import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 
 const copy = {
@@ -68,8 +68,7 @@ function AuthForm({ mode }) {
         navigate(mode === 'admin' ? '/admin' : '/chat', { replace: true })
       }
     } catch (requestError) {
-      const backendMessage = requestError.response?.data?.message
-      if (typeof backendMessage === 'string') setError(backendMessage)
+      setError(getApiMessage(requestError))
     } finally {
       setBusy(false)
     }
