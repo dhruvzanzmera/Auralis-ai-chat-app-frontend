@@ -8,8 +8,9 @@ export function useAuth() {
   const loading = useSelector((state) => state.auth.loading)
   const dispatch = useDispatch()
 
-  const signIn = useCallback(async (credentials) => {
-    const { data } = await chatApi.post('/auth/login', credentials)
+  const signIn = useCallback(async (credentials, adminOnly = false) => {
+    const endpoint = adminOnly ? '/auth/admin/login' : '/auth/login'
+    const { data } = await chatApi.post(endpoint, credentials)
     const authenticatedUser = data.user || data
     dispatch(setUser(authenticatedUser))
     return authenticatedUser

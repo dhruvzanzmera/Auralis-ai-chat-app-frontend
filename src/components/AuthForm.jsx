@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { chatApi } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 
@@ -33,12 +33,13 @@ const copy = {
 
 function AuthForm({ mode }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
-  const { signIn, register, logout } = useAuth()
+  const { signIn, register } = useAuth()
   const [form, setForm] = useState({ name: '', email: '', password: '', newPassword: '' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
+  const [notice, setNotice] = useState(location.state?.notice || '')
   const resetToken = searchParams.get('token') || ''
 
   const update = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }))
@@ -51,26 +52,24 @@ function AuthForm({ mode }) {
     try {
       if (mode === 'forgot') {
         const { data } = await chatApi.post('/auth/forgot-password', { email: form.email })
-        setNotice(data.message || 'If an account matches, password reset instructions have been sent.')
+        setNotice(data.message)
       } else if (mode === 'reset') {
         const { data } = await chatApi.post('/auth/reset-password', {
           token: resetToken,
           password: form.newPassword,
         })
-        setNotice(data.message || 'Password updated. You can now sign in.')
-        navigate('/login', { replace: true, state: { notice: data.message || 'Password updated. You can now sign in.' } })
+        navigate('/login', { replace: true, state: { notice: data.message } })
       } else {
-        const authenticatedUser = mode === 'register'
-          ? await register({ name: form.name, email: form.email, password: form.password })
-          : await signIn({ email: form.email, password: form.password })
-        if (mode === 'admin' && authenticatedUser.role !== 'ADMIN') {
-          await logout()
-          throw new Error('This account does not have administrator access.')
+        if (mode === 'register') {
+          await register({ name: form.name, email: form.email, password: form.password })
+        } else {
+          await signIn({ email: form.email, password: form.password }, mode === 'admin')
         }
         navigate(mode === 'admin' ? '/admin' : '/chat', { replace: true })
       }
     } catch (requestError) {
-      setError(requestError.response?.data?.message || requestError.message || 'Unable to complete this request. Please try again.')
+      const backendMessage = requestError.response?.data?.message
+      if (typeof backendMessage === 'string') setError(backendMessage)
     } finally {
       setBusy(false)
     }
