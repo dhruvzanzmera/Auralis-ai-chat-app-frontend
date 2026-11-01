@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { chatApi, getApiMessage } from '../api/chatApi'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
 
 function AdminDashboardPage() {
-  const navigate = useNavigate()
   const [range, setRange] = useState('7d')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
@@ -84,7 +82,6 @@ function AdminDashboardPage() {
             <input aria-label="Start date" type="date" value={customStart} onChange={(event) => updateFilter(setCustomStart, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
             <input aria-label="End date" type="date" value={customEnd} onChange={(event) => updateFilter(setCustomEnd, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
           </>}
-          <button onClick={() => navigate('/chat')} className="rounded-xl border border-[#e0e3f7] bg-white px-4 py-2 text-sm font-medium text-[#4a5580] hover:bg-[#f5f6ff]">Back to chat</button>
         </div>
       </div>
       {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}

@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PageHeader from '../components/PageHeader'
+import PasswordInput from '../components/PasswordInput'
 
 function AccountPage() {
-  const navigate = useNavigate()
   const { user } = useAuth()
   const [dailySeries, setDailySeries] = useState([])
   const [dailyUsageMessage, setDailyUsageMessage] = useState('')
@@ -53,9 +52,8 @@ function AccountPage() {
     <main className="h-dvh overflow-y-auto bg-[#f8f9fc]">
       <PageHeader title="Account & usage" />
       <section className="mx-auto w-full max-w-5xl px-4 py-7 sm:px-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6">
         <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#7986a8]">Your workspace</p><h1 className="mt-1 text-2xl font-bold text-[#1a1a2e]">Account & usage</h1></div>
-        <button onClick={() => navigate('/chat')} className="rounded-xl border border-[#e0e3f7] bg-white px-4 py-2 text-sm font-medium text-[#4a5580] hover:bg-[#f5f6ff]">Back to chat</button>
       </div>
       <section className="mt-5 rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
         <h2 className="font-semibold text-[#1a1a2e]">Daily prompt activity</h2>
@@ -87,8 +85,8 @@ function AccountPage() {
           <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
             <h2 className="font-semibold text-[#1a1a2e]">Change password</h2>
             <form onSubmit={changePassword} className="mt-4 space-y-3">
-              <input aria-label="Current password" type="password" autoComplete="current-password" minLength="10" required placeholder="Current password" value={form.currentPassword} onChange={(event) => setForm({ ...form, currentPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] px-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
-              <input aria-label="New password" type="password" autoComplete="new-password" minLength="10" maxLength="128" required placeholder="New password (10+ characters)" value={form.newPassword} onChange={(event) => setForm({ ...form, newPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] px-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
+              <PasswordInput aria-label="Current password" autoComplete="current-password" minLength="10" required placeholder="Current password" value={form.currentPassword} onChange={(event) => setForm({ ...form, currentPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] pl-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
+              <PasswordInput aria-label="New password" autoComplete="new-password" minLength="10" maxLength="128" required placeholder="New password (10+ characters)" value={form.newPassword} onChange={(event) => setForm({ ...form, newPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] pl-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
               {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
               {notice && <p role="status" className="text-xs text-green-700">{notice}</p>}
               <button disabled={busy} className="rounded-xl bg-[#5c6bc0] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{busy ? 'Updating…' : 'Update password'}</button>

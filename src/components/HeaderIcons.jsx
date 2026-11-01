@@ -7,6 +7,15 @@ export function UserIcon() {
   )
 }
 
+export function ChatIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 11h8M8 14h5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function LogoutIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">

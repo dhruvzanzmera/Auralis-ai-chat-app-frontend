@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
+import PasswordInput from './PasswordInput'
 
 const copy = {
   login: {
@@ -119,14 +120,24 @@ function Field({ label, name, value, onChange, type = 'text', ...props }) {
   return (
     <label className="block text-sm font-medium text-[#394055]">
       {label}
-      <input
-        className="mt-1.5 w-full rounded-xl border border-[#e0e3f7] bg-[#fcfcff] px-3.5 py-2.5 text-sm text-[#1a1a2e] outline-none transition focus:border-[#9fa8da] focus:ring-4 focus:ring-[#667eea]/10"
-        name={name}
-        value={value}
-        onChange={onChange}
-        type={type}
-        {...props}
-      />
+      {type === 'password' ? (
+        <PasswordInput
+          className="mt-1.5 w-full rounded-xl border border-[#e0e3f7] bg-[#fcfcff] pl-3.5 py-2.5 text-sm text-[#1a1a2e] outline-none transition focus:border-[#9fa8da] focus:ring-4 focus:ring-[#667eea]/10"
+          name={name}
+          value={value}
+          onChange={onChange}
+          {...props}
+        />
+      ) : (
+        <input
+          className="mt-1.5 w-full rounded-xl border border-[#e0e3f7] bg-[#fcfcff] px-3.5 py-2.5 text-sm text-[#1a1a2e] outline-none transition focus:border-[#9fa8da] focus:ring-4 focus:ring-[#667eea]/10"
+          name={name}
+          value={value}
+          onChange={onChange}
+          type={type}
+          {...props}
+        />
+      )}
     </label>
   )
 }

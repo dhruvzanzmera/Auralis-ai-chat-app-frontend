@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import Sidebar from '../components/Sidebar'
 import ChatWindow from '../components/ChatWindow'
 import ChatInput from '../components/ChatInput'
-import { LogoutIcon, UserIcon } from '../components/HeaderIcons'
+import AdminNavigation from '../components/AdminNavigation'
+import UserMenu from '../components/UserMenu'
 
 function ChatPage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
   const [chats, setChats] = useState([])
   const [chatsEmptyMessage, setChatsEmptyMessage] = useState('')
   const [chatsLoading, setChatsLoading] = useState(true)
@@ -17,7 +16,6 @@ function ChatPage() {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
   const [openingChatId, setOpeningChatId] = useState(null)
-  const [loggingOut, setLoggingOut] = useState(false)
   const [regeneratingIndex, setRegeneratingIndex] = useState(null)
   const [error, setError] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -132,19 +130,6 @@ function ChatPage() {
     }
   }
 
-  const handleLogout = async () => {
-    if (loggingOut) return
-    setLoggingOut(true)
-    try {
-      await logout()
-      navigate('/login', { replace: true })
-    } catch (requestError) {
-      setError(getApiMessage(requestError))
-    } finally {
-      setLoggingOut(false)
-    }
-  }
-
   const editMessage = async (messageIndex, prompt) => {
     if (!activeChatId) return false
 
@@ -225,24 +210,9 @@ function ChatPage() {
               {activeChat ? 'Your conversation' : 'Start with a question or an idea'}
             </p>
           </div>
-          <span
-            className="hidden shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium sm:inline-flex sm:items-center sm:gap-1.5"
-            style={{ background: '#eef0fb', color: '#5c6bc0', border: '1px solid #e0e3f7' }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#7986cb' }} />
-            AI Assistant
-          </span>
-          <div className="flex shrink-0 items-center gap-1">
-            <Link to="/account" aria-label="Account" title="Account" className="rounded-lg p-2 text-[#5c6bc0] transition hover:bg-[#eef0fb]">
-              <UserIcon />
-            </Link>
-            {user?.role === 'ADMIN' && <Link to="/admin" className="rounded-lg px-2.5 py-2 text-xs font-medium text-[#5c6bc0] transition hover:bg-[#eef0fb]">Admin</Link>}
-            <button onClick={handleLogout} disabled={loggingOut} aria-label={loggingOut ? 'Signing out' : 'Sign out'} title={loggingOut ? 'Signing out…' : 'Sign out'} aria-busy={loggingOut} className="flex h-10 w-10 items-center justify-center rounded-lg p-2 text-[#7986a8] transition hover:bg-[#fce8e8] hover:text-[#c62828] disabled:cursor-wait disabled:opacity-60">
-              {loggingOut
-                ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                : <LogoutIcon />
-              }
-            </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <AdminNavigation admin={user?.role === 'ADMIN'} />
+            <UserMenu />
           </div>
         </header>
 
