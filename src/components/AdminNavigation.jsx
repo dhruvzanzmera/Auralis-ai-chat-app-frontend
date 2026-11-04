@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { ChatIcon } from './HeaderIcons'
+import ThemeToggle from './ThemeToggle'
 
 function AdminNavigation({ admin = false }) {
   return (
@@ -34,6 +35,7 @@ function AdminNavigation({ admin = false }) {
         <span className="hidden sm:inline">Users</span>
       </NavLink>
       </>}
+      <ThemeToggle />
     </nav>
   )
 }
