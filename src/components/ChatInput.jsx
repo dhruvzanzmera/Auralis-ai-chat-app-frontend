@@ -37,7 +37,7 @@ function ChatInput({ onSend, disabled, loading = disabled }) {
         borderTop: '1px solid #e4e7f1',
       }}
     >
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="mx-auto w-full max-w-6xl">
         {/* Input box */}
         <div
           className="composer-shell flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-all duration-200 sm:gap-3 sm:px-4"

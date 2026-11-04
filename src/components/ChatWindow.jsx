@@ -87,7 +87,7 @@ function ChatWindow({ messages, loading, loadingChat, error, onSuggestion, onEdi
           )}
         </div>
       ) : (
-        <div className="mx-auto max-w-3xl px-4 pb-8 pt-6 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 pb-8 pt-6 sm:px-6">
           {messages.map((message, index) => (
             <div key={`${message.createdAt || index}-${index}`}>
               <MessageBubble
