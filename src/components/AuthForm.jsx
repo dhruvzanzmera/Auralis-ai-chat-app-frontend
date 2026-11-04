@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import PasswordInput from './PasswordInput'
+import ThemeToggle from './ThemeToggle'
 
 const copy = {
   login: {
@@ -81,10 +82,13 @@ function AuthForm({ mode }) {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc] px-4 py-10">
       <section className="w-full max-w-md rounded-3xl border border-[#e8eaf6] bg-white p-7 shadow-[0_16px_50px_rgba(92,107,192,0.12)] sm:p-9">
-        <Link to="/" className="mb-7 flex items-center gap-3">
+        <div className="mb-7 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-lg font-bold text-white">A</div>
           <div><p className="font-bold text-[#1a1a2e]">Auralis</p><p className="text-xs text-[#8b93ad]">Your AI workspace</p></div>
         </Link>
+        <ThemeToggle />
+        </div>
         <h1 className="text-2xl font-bold tracking-tight text-[#1a1a2e]">{heading.title}</h1>
         <p className="mt-2 text-sm leading-6 text-[#7986a8]">{heading.description}</p>
 
