@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { chatApi, getApiMessage } from '../api/chatApi'
 import { useAuth } from '../auth/useAuth'
 import PasswordInput from './PasswordInput'
-import ThemeToggle from './ThemeToggle'
 
 const copy = {
   login: {
@@ -80,14 +79,13 @@ function AuthForm({ mode }) {
   const heading = copy[mode]
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-[#f8f9fc] px-4 py-10">
-      <section className="w-full max-w-md rounded-3xl border border-[#e8eaf6] bg-white p-7 shadow-[0_16px_50px_rgba(92,107,192,0.12)] sm:p-9">
-        <div className="mb-7 flex items-center justify-between">
+    <main className="auth-backdrop flex min-h-dvh items-center justify-center px-4 py-10">
+      <section className="auth-card w-full max-w-md rounded-3xl border bg-white p-7 sm:p-9">
+        <div className="mb-7">
         <Link to="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-lg font-bold text-white">A</div>
           <div><p className="font-bold text-[#1a1a2e]">Auralis</p><p className="text-xs text-[#8b93ad]">Your AI workspace</p></div>
         </Link>
-        <ThemeToggle />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-[#1a1a2e]">{heading.title}</h1>
         <p className="mt-2 text-sm leading-6 text-[#7986a8]">{heading.description}</p>
@@ -99,7 +97,7 @@ function AuthForm({ mode }) {
           {mode === 'reset' && <Field label="New password" name="newPassword" value={form.newPassword} onChange={update} type="password" autoComplete="new-password" required minLength={10} maxLength={128} />}
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-800">{notice}</p>}
-          <button disabled={busy} aria-busy={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-105 disabled:cursor-wait disabled:opacity-60">
+          <button disabled={busy} aria-busy={busy} className="btn-primary flex w-full items-center justify-center gap-2 px-4 py-3 text-sm transition disabled:cursor-wait disabled:opacity-60">
             {busy && <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
             {busy ? 'Please wait…' : heading.submit}
           </button>
@@ -126,7 +124,7 @@ function Field({ label, name, value, onChange, type = 'text', ...props }) {
       {label}
       {type === 'password' ? (
         <PasswordInput
-          className="mt-1.5 w-full rounded-xl border border-[#e0e3f7] bg-[#fcfcff] pl-3.5 py-2.5 text-sm text-[#1a1a2e] outline-none transition focus:border-[#9fa8da] focus:ring-4 focus:ring-[#667eea]/10"
+          className="form-control mt-1.5 w-full pl-3.5 py-2.5 text-sm outline-none"
           name={name}
           value={value}
           onChange={onChange}
@@ -134,7 +132,7 @@ function Field({ label, name, value, onChange, type = 'text', ...props }) {
         />
       ) : (
         <input
-          className="mt-1.5 w-full rounded-xl border border-[#e0e3f7] bg-[#fcfcff] px-3.5 py-2.5 text-sm text-[#1a1a2e] outline-none transition focus:border-[#9fa8da] focus:ring-4 focus:ring-[#667eea]/10"
+          className="form-control mt-1.5 w-full px-3.5 py-2.5 text-sm outline-none"
           name={name}
           value={value}
           onChange={onChange}

@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import { ChatIcon } from './HeaderIcons'
-import ThemeToggle from './ThemeToggle'
 
 function AdminNavigation({ admin = false }) {
   return (
@@ -9,7 +8,7 @@ function AdminNavigation({ admin = false }) {
         to="/chat"
         aria-label="Chat"
         title="Chat"
-        className={({ isActive }) => `flex h-10 items-center justify-center gap-2 rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'border-[#dfe3f7] bg-[#eef0fb] text-[#4f5db8]' : 'border-transparent text-[#59617a] hover:border-[#e8eaf6] hover:bg-[#f8f9fc] hover:text-[#4f5db8]'}`}
+        className={({ isActive }) => `app-nav-link flex h-10 items-center justify-center gap-2 rounded-xl border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'is-active' : ''}`}
       >
         <ChatIcon />
         <span className="hidden sm:inline">Chat</span>
@@ -20,7 +19,7 @@ function AdminNavigation({ admin = false }) {
         end
         aria-label="Dashboard"
         title="Dashboard"
-        className={({ isActive }) => `flex h-10 items-center justify-center gap-2 rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'border-[#dfe3f7] bg-[#eef0fb] text-[#4f5db8]' : 'border-transparent text-[#59617a] hover:border-[#e8eaf6] hover:bg-[#f8f9fc] hover:text-[#4f5db8]'}`}
+        className={({ isActive }) => `app-nav-link flex h-10 items-center justify-center gap-2 rounded-xl border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'is-active' : ''}`}
       >
         <DashboardIcon />
         <span className="hidden sm:inline">Dashboard</span>
@@ -29,13 +28,12 @@ function AdminNavigation({ admin = false }) {
         to="/admin/users"
         aria-label="Users"
         title="Users"
-        className={({ isActive }) => `flex h-10 items-center justify-center gap-2 rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'border-[#dfe3f7] bg-[#eef0fb] text-[#4f5db8]' : 'border-transparent text-[#59617a] hover:border-[#e8eaf6] hover:bg-[#f8f9fc] hover:text-[#4f5db8]'}`}
+        className={({ isActive }) => `app-nav-link flex h-10 items-center justify-center gap-2 rounded-xl border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#667eea] sm:px-3 ${isActive ? 'is-active' : ''}`}
       >
         <UsersIcon />
         <span className="hidden sm:inline">Users</span>
       </NavLink>
       </>}
-      <ThemeToggle />
     </nav>
   )
 }

@@ -100,13 +100,9 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
         ref={sidebarRef}
         role={open ? 'dialog' : undefined}
         aria-modal={open || undefined}
-        style={{
-          background: '#ffffff',
-          borderRight: collapsed ? 'none' : '1px solid #e4e7f1',
-          boxShadow: open ? '8px 0 32px rgba(34,43,90,0.14)' : 'none',
-        }}
+        style={{ borderRight: collapsed ? 'none' : undefined, boxShadow: open ? '8px 0 32px rgba(34,43,90,0.14)' : 'none' }}
         aria-label="Conversation navigation"
-        className={`fixed inset-y-0 left-0 z-30 flex w-[min(84vw,300px)] shrink-0 flex-col p-3 transition-all duration-200 md:relative md:w-[272px] md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'
+        className={`chat-sidebar fixed inset-y-0 left-0 z-30 flex w-[min(84vw,280px)] shrink-0 flex-col border-r p-3 transition-all duration-200 md:relative md:w-[260px] md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'
         } ${collapsed ? 'sidebar-collapsed' : ''
         }`}
       >
@@ -123,8 +119,8 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
             A
           </div>
           <div>
-            <p className="text-sm font-bold leading-tight" style={{ color: '#1a1a2e' }}>Auralis</p>
-            <p className="text-[10px] leading-tight" style={{ color: '#9fa8da' }}>AI Assistant</p>
+            <p className="chat-brand-title text-sm font-bold leading-tight">Auralis</p>
+            <p className="chat-brand-subtitle text-[10px] leading-tight">AI Assistant</p>
           </div>
         </div>
         <button
@@ -143,18 +139,11 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
         id="new-chat-btn"
         onClick={onNewChat}
         disabled={navigationBusy}
-        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 disabled:cursor-wait disabled:opacity-60"
-        style={{
-          background: 'linear-gradient(135deg, #667eea18, #764ba212)',
-          border: '1px solid #e0e3f7',
-          color: '#3949ab',
-        }}
+        className="chat-new-button flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 disabled:cursor-wait disabled:opacity-60"
         onMouseEnter={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, #667eea28, #764ba220)'
           e.currentTarget.style.boxShadow = '0 2px 8px rgba(102,126,234,0.18)'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = 'linear-gradient(135deg, #667eea18, #764ba212)'
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
@@ -170,8 +159,7 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
       {/* Chat History */}
       <div className="mt-6 flex-1 overflow-y-auto">
         <p
-          className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.15em]"
-          style={{ color: '#b0bcd8' }}
+          className="chat-section-label mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.15em]"
         >
           Recent
         </p>
@@ -185,10 +173,7 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
           {chats.map((chat) => (
             <div
               key={chat._id}
-              className={`group flex min-h-10 items-center gap-1 rounded-xl px-2 py-1.5 transition-all duration-150 ${activeChatId === chat._id ? 'bg-[#eff0ff] ring-1 ring-inset ring-[#dfe1f8]' : 'hover:bg-[#f5f6fa]'}`}
-              style={{
-                border: '1px solid transparent',
-              }}
+              className={`chat-history-row group flex min-h-10 items-center gap-1 rounded-xl border px-2 py-1.5 transition-all duration-150 ${activeChatId === chat._id ? 'is-active' : ''}`}
             >
               {editingChatId === chat._id ? (
                 <form onSubmit={(event) => submitRename(event, chat._id)} className="flex min-w-0 flex-1 items-center gap-1">
@@ -233,8 +218,7 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
                     onClick={() => onSelectChat(chat._id)}
                     disabled={navigationBusy}
                     aria-busy={openingChatId === chat._id}
-                    className="flex min-h-10 min-w-0 flex-1 items-center gap-2 truncate py-1.5 text-left text-[13px] font-medium disabled:cursor-wait disabled:opacity-70"
-                    style={{ color: activeChatId === chat._id ? '#3949ab' : '#4a5580' }}
+                    className="chat-history-title flex min-h-10 min-w-0 flex-1 items-center gap-2 truncate py-1.5 text-left text-[13px] font-medium disabled:cursor-wait disabled:opacity-70"
                   >
                     {openingChatId === chat._id && (
                       <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-[#e0e3f7] border-t-[#667eea]" />
@@ -271,8 +255,7 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
 
       {/* Footer */}
       <div
-        className="mt-3 px-3 pt-4 text-[11px]"
-        style={{ borderTop: '1px solid #e4e7f1', color: '#727b96' }}
+        className="chat-sidebar-footer mt-3 border-t px-3 pt-4 text-[11px]"
       >
         Made for curious minds ✦
       </div>
@@ -302,15 +285,15 @@ function Sidebar({ chats, chatsEmptyMessage, chatsLoading, navigationBusy, openi
                 firstButton?.focus()
               }
             }}
-            className="w-full max-w-sm rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-2xl"
+            className="chat-dialog w-full max-w-sm rounded-2xl border p-5 shadow-2xl"
           >
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fce8e8] text-[#d32f2f]">
                 <TrashIcon />
               </div>
               <div>
-                <h2 id="delete-chat-title" className="text-base font-semibold text-[#1a1a2e]">Delete conversation?</h2>
-                <p id="delete-chat-description" className="mt-1 text-sm leading-5 text-[#68718b]">
+                <h2 id="delete-chat-title" className="text-base font-semibold">Delete conversation?</h2>
+                <p id="delete-chat-description" className="chat-muted mt-1 text-sm leading-5">
                   {deleteTarget.deleteConfirmationMessage}
                 </p>
               </div>

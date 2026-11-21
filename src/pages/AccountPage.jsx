@@ -55,13 +55,13 @@ function AccountPage() {
       <div className="mb-6">
         <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#7986a8]">Your workspace</p><h1 className="mt-1 text-2xl font-bold text-[#1a1a2e]">Account & usage</h1></div>
       </div>
-      <section className="mt-5 rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+      <section className="surface-card mt-5 p-5">
         <h2 className="font-semibold text-[#1a1a2e]">Daily prompt activity</h2>
         <p className="mt-1 text-xs text-[#8b93ad]">Last 7 days · UTC</p>
         <DailyChart rows={dailySeries} message={dailyUsageMessage} loading={loadingUsage} error={usageError} />
       </section>
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <section className="overflow-hidden rounded-2xl border border-[#e8eaf6] bg-white shadow-sm">
+        <section className="surface-card overflow-hidden">
           <div className="bg-gradient-to-r from-[#f0f2ff] to-[#f7f2ff] px-5 py-6 sm:px-6">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#7986a8]">Your account</p>
             <div className="mt-4 flex items-center gap-4">
@@ -82,14 +82,14 @@ function AccountPage() {
           </dl>
         </section>
         <div>
-          <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+          <section className="surface-card p-5">
             <h2 className="font-semibold text-[#1a1a2e]">Change password</h2>
             <form onSubmit={changePassword} className="mt-4 space-y-3">
-              <PasswordInput aria-label="Current password" autoComplete="current-password" minLength="10" required placeholder="Current password" value={form.currentPassword} onChange={(event) => setForm({ ...form, currentPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] pl-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
-              <PasswordInput aria-label="New password" autoComplete="new-password" minLength="10" maxLength="128" required placeholder="New password (10+ characters)" value={form.newPassword} onChange={(event) => setForm({ ...form, newPassword: event.target.value })} className="w-full rounded-xl border border-[#e0e3f7] pl-3 py-2.5 text-sm outline-none focus:border-[#9fa8da]" />
+              <PasswordInput aria-label="Current password" autoComplete="current-password" minLength="10" required placeholder="Current password" value={form.currentPassword} onChange={(event) => setForm({ ...form, currentPassword: event.target.value })} className="form-control w-full pl-3 py-2.5 text-sm outline-none" />
+              <PasswordInput aria-label="New password" autoComplete="new-password" minLength="10" maxLength="128" required placeholder="New password (10+ characters)" value={form.newPassword} onChange={(event) => setForm({ ...form, newPassword: event.target.value })} className="form-control w-full pl-3 py-2.5 text-sm outline-none" />
               {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
               {notice && <p role="status" className="text-xs text-green-700">{notice}</p>}
-              <button disabled={busy} className="rounded-xl bg-[#5c6bc0] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{busy ? 'Updating…' : 'Update password'}</button>
+              <button disabled={busy} className="btn-primary px-4 py-2.5 text-sm disabled:opacity-60">{busy ? 'Updating…' : 'Update password'}</button>
             </form>
           </section>
         </div>

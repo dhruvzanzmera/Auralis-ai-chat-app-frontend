@@ -23,12 +23,12 @@ function ChatWindow({ messages, loading, loadingChat, error, onSuggestion, onEdi
         <div className="flex min-h-full flex-col items-center justify-center gap-4 px-5 text-center" role="status" aria-live="polite">
           <span className="h-9 w-9 animate-spin rounded-full border-[3px] border-[#e0e3f7] border-t-[#667eea]" />
           <div>
-            <p className="text-sm font-semibold text-[#394055]">Opening conversation</p>
-            <p className="mt-1 text-xs text-[#8b93ad]">Your messages will be here in a moment.</p>
+              <p className="text-sm font-semibold text-[var(--color-text)]">Opening conversation</p>
+              <p className="chat-muted mt-1 text-xs">Your messages will be here in a moment.</p>
           </div>
         </div>
       ) : messages.length === 0 ? (
-        <div className="mx-auto flex min-h-full max-w-3xl flex-col justify-center px-5 pb-10 pt-8 sm:px-6 sm:pb-12">
+        <div className="mx-auto flex min-h-full max-w-3xl flex-col justify-center px-5 pb-7 pt-6 sm:px-6 sm:pb-9">
           {/* Welcome hero */}
           <div className="mb-2 flex items-center gap-3">
             <div
@@ -40,37 +40,33 @@ function ChatWindow({ messages, loading, loadingChat, error, onSuggestion, onEdi
             >
               A
             </div>
-            <span className="rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em]" style={{ background: '#eff0ff', color: '#535bb4' }}>
+            <span className="chat-welcome-badge rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em]">
               Your AI workspace
             </span>
           </div>
           <h1
-            className="mt-4 text-[clamp(1.75rem,4vw,2.4rem)] font-bold leading-tight"
-            style={{ color: '#1a1a2e', letterSpacing: '-0.02em' }}
+            className="chat-welcome-title mt-3 text-[clamp(1.65rem,3.5vw,2.1rem)] font-bold leading-tight tracking-tight"
           >
             Hello! I&apos;m <span style={{ color: '#5b62c7' }}>Auralis</span>
           </h1>
-          <p className="mt-2 max-w-lg text-[15px] leading-7" style={{ color: '#626b86' }}>
+          <p className="chat-welcome-copy mt-2 max-w-lg text-sm leading-6">
             Your intelligent AI assistant — built to help you think, create, and make the most of every idea.
           </p>
 
           {/* Suggestion cards */}
-          <div className="mt-7 grid gap-3 sm:mt-9 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {suggestions.map((s) => (
               <button
                 key={s.title}
                 type="button"
                 onClick={() => onSuggestion(s.detail)}
-                className="suggestion-card group flex items-start gap-3 rounded-2xl p-4 text-left transition-all duration-200 sm:p-5"
+                className="chat-suggestion-card suggestion-card group flex items-start gap-3 rounded-2xl p-4 text-left transition-all duration-200"
                 aria-label={`${s.title}: ${s.detail}`}
-                style={{
-                  background: '#ffffff',
-                }}
               >
                 <span aria-hidden="true" className="mt-0.5 text-xl">{s.icon}</span>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: '#24283f' }}>{s.title}</p>
-                  <p className="mt-1 text-[13px] leading-5" style={{ color: '#68718b' }}>{s.detail}</p>
+                  <p className="chat-suggestion-title text-sm font-bold">{s.title}</p>
+                  <p className="chat-suggestion-copy mt-1 text-[13px] leading-5">{s.detail}</p>
                 </div>
               </button>
             ))}

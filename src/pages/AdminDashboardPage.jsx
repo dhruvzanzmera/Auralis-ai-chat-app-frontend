@@ -75,12 +75,12 @@ function AdminDashboardPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[#7986a8]">Auralis administration</p><h1 className="mt-1 text-2xl font-bold text-[#1a1a2e]">Usage dashboard</h1></div>
         <div className="flex flex-wrap gap-2">
-          <select aria-label="Analytics range" value={range} onChange={(event) => updateFilter(setRange, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-3 py-2 text-sm text-[#394055]">
+          <select aria-label="Analytics range" value={range} onChange={(event) => updateFilter(setRange, event.target.value)} className="form-control px-3 py-2 text-sm">
             <option value="today">Today</option><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option><option value="month">This month</option><option value="custom">Custom range</option>
           </select>
           {range === 'custom' && <>
-            <input aria-label="Start date" type="date" value={customStart} onChange={(event) => updateFilter(setCustomStart, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
-            <input aria-label="End date" type="date" value={customEnd} onChange={(event) => updateFilter(setCustomEnd, event.target.value)} className="rounded-xl border border-[#e0e3f7] bg-white px-2 py-2 text-xs text-[#394055]" />
+            <input aria-label="Start date" type="date" value={customStart} onChange={(event) => updateFilter(setCustomStart, event.target.value)} className="form-control px-2 py-2 text-xs" />
+            <input aria-label="End date" type="date" value={customEnd} onChange={(event) => updateFilter(setCustomEnd, event.target.value)} className="form-control px-2 py-2 text-xs" />
           </>}
         </div>
       </div>
@@ -98,7 +98,7 @@ function AdminDashboardPage() {
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
-        <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#1a1a2e]">Prompt activity</h2><p className="mt-1 text-xs text-[#8b93ad]">Requests per reporting day · UTC</p></div><span className="rounded-full bg-[#f0f2ff] px-2.5 py-1 text-xs text-[#5c6bc0]">{range}</span></div>
           {hasPromptActivity ? <div className="mt-5 flex h-44 items-end gap-2 border-b border-[#edf0f8] pb-1">
             {chartRows.map((item, index) => {
@@ -114,7 +114,7 @@ function AdminDashboardPage() {
             ? <LoadingIndicator label="Loading prompt activity…" className="min-h-44" />
             : <EmptyState text={analytics.prompts?.message} />}
         </section>
-        <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <h2 className="font-semibold text-[#1a1a2e]">Recent usage leaders</h2>
           {dashboard?.mostActiveUsers?.length ? <div className="mt-3 divide-y divide-[#f0f2f8]">
             {dashboard.mostActiveUsers.slice(0, 6).map((item, index) => <div key={item._id || index} className="flex justify-between gap-3 py-3 text-sm"><span className="truncate text-[#394055]">{item.name || item.email || 'User'}</span><span className="font-semibold text-[#5c6bc0]">{item.prompts ?? item.count ?? item.totalPrompts ?? 0} prompts</span></div>)}
@@ -125,20 +125,20 @@ function AdminDashboardPage() {
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <h2 className="font-semibold text-[#1a1a2e]">New registrations</h2>
           <p className="mt-1 text-xs text-[#8b93ad]">Accounts created within the selected range</p>
           {registrationRows.length ? <MiniBarChart rows={registrationRows} /> : loadingData
             ? <LoadingIndicator label="Loading registrations…" className="min-h-32" />
             : <EmptyState text={analytics.registrations?.message} />}
         </section>
-        <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <h2 className="font-semibold text-[#1a1a2e]">Models by usage</h2>
           {modelRows.length ? <div className="mt-3 space-y-3">{modelRows.slice(0, 6).map((item, index) => <div key={item.model || item._id || index} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-[#566078]">{item.model || item.name || item._id || 'Model'}</span><span className="font-semibold text-[#5c6bc0]">{Number(item.count ?? item.prompts ?? item.total ?? 0).toLocaleString()}</span></div>)}</div> : loadingData
             ? <LoadingIndicator label="Loading model usage…" className="min-h-32" />
             : <EmptyState text={analytics.models?.message} />}
         </section>
-        <section className="rounded-2xl border border-[#e8eaf6] bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <h2 className="font-semibold text-[#1a1a2e]">Request outcomes</h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <MiniMetric label="Successful" value={errorSummary.successfulRequests ?? errorSummary.success ?? errorSummary.succeeded ?? metrics.successfulRequests ?? 0} hasData={Boolean(dashboard)} />
@@ -153,7 +153,7 @@ function AdminDashboardPage() {
 }
 
 function Metric({ title, value, loading = false }) {
-  return <div className="rounded-xl border border-[#e8eaf6] bg-[#fcfcff] p-3"><p className="text-[10px] font-medium text-[#8b93ad]">{title}</p><p className="mt-1 flex min-h-7 items-center text-lg font-bold text-[#272b4a]">{loading ? <LoadingIndicator label="Loading" /> : typeof value === 'number' ? value.toLocaleString() : value}</p></div>
+  return <div className="metric-card"><p>{title}</p><p className="mt-1 flex min-h-7 items-center">{loading ? <LoadingIndicator label="Loading" /> : typeof value === 'number' ? value.toLocaleString() : value}</p></div>
 }
 
 function MiniMetric({ label, value, hasData }) {
