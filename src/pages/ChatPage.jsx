@@ -163,7 +163,7 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[#f7f8fc]">
+    <div className="chat-app-shell flex h-dvh overflow-hidden">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <button
@@ -190,7 +190,7 @@ function ChatPage() {
         onRenameChat={renameChat}
       />
 
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#f7f8fc]">
+      <main className="chat-main flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="app-header flex h-14 shrink-0 items-center gap-3 px-4">
           <button
             type="button"
@@ -203,10 +203,10 @@ function ChatPage() {
             <MenuIcon />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold" style={{ color: '#1a1a2e' }}>
+            <p className="truncate text-sm font-semibold text-[var(--color-text)]">
               {activeChat?.title || 'New conversation'}
             </p>
-            <p className="text-[11px]" style={{ color: '#8b93ad' }}>
+            <p className="chat-muted text-[11px]">
               {activeChat ? 'Your conversation' : 'Start with a question or an idea'}
             </p>
           </div>

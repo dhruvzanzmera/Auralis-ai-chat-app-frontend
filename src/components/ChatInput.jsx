@@ -30,22 +30,12 @@ function ChatInput({ onSend, disabled, loading = disabled }) {
 
   return (
     <div
-      className="shrink-0 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-5"
-      style={{
-        background: 'rgba(247,248,252,0.94)',
-        backdropFilter: 'blur(14px)',
-        borderTop: '1px solid #e4e7f1',
-      }}
+      className="chat-composer-footer shrink-0 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4"
     >
       <div className="mx-auto w-full max-w-6xl">
         {/* Input box */}
         <div
           className="composer-shell flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-all duration-200 sm:gap-3 sm:px-4"
-          style={{
-            background: '#ffffff',
-            border: '1px solid #dfe3ef',
-            boxShadow: '0 3px 12px rgba(34,43,90,0.06)',
-          }}
         >
           <textarea
             ref={textareaRef}
@@ -58,8 +48,7 @@ function ChatInput({ onSend, disabled, loading = disabled }) {
             placeholder="Ask Auralis anything…"
             aria-label="Message"
             aria-describedby="chat-input-hint"
-            className="max-h-[200px] min-h-10 flex-1 resize-none bg-transparent py-2 text-base leading-6 outline-none disabled:opacity-60 sm:text-[15px]"
-            style={{ color: '#1a1a2e' }}
+            className="max-h-[160px] min-h-10 flex-1 resize-none bg-transparent py-2 text-sm leading-6 outline-none disabled:opacity-60"
           />
           <button
             id="send-btn"
@@ -67,16 +56,7 @@ function ChatInput({ onSend, disabled, loading = disabled }) {
             disabled={!canSend}
             aria-label={loading ? 'Auralis is responding' : disabled ? 'Conversation is loading' : 'Send message'}
             aria-busy={loading || undefined}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:brightness-105"
-            style={{
-              background: canSend
-                ? 'linear-gradient(135deg, #667eea, #764ba2)'
-                : '#f0f2ff',
-              boxShadow: canSend ? '0 4px 12px rgba(102,126,234,0.4)' : 'none',
-              color: canSend ? '#ffffff' : '#c5cae9',
-              cursor: canSend ? 'pointer' : 'not-allowed',
-              transform: canSend ? 'scale(1)' : 'scale(0.95)',
-            }}
+            className={`chat-send-button flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:brightness-105 ${canSend ? 'is-enabled' : ''}`}
           >
             {loading
               ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -86,7 +66,7 @@ function ChatInput({ onSend, disabled, loading = disabled }) {
         </div>
 
         {/* Disclaimer */}
-        <p id="chat-input-hint" className="mt-2 hidden text-center text-xs sm:block" style={{ color: '#727b96' }}>
+        <p id="chat-input-hint" className="chat-muted mt-2 hidden text-center text-[11px] sm:block">
           Enter to send · Shift + Enter for a new line · Verify important information.
         </p>
       </div>

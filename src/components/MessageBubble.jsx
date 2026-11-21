@@ -49,7 +49,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
             {editing ? (
               <form
                 onSubmit={submitEdit}
-                className="w-[min(32rem,calc(100vw-5rem))] rounded-2xl border border-[#e0e3f7] bg-white p-3 shadow-md sm:w-[min(32rem,80vw)]"
+                className="chat-edit-form w-[min(32rem,calc(100vw-5rem))] rounded-2xl p-3 shadow-md sm:w-[min(32rem,80vw)]"
               >
                 <textarea
                   aria-label="Edit your prompt"
@@ -58,14 +58,14 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   disabled={saving}
-                  className="w-full resize-y rounded-lg border border-[#e8eaf6] bg-[#fafbff] p-3 text-sm leading-6 text-[#1a1a2e] outline-none focus:border-[#9fa8da]"
+                  className="w-full resize-y rounded-lg p-3 text-sm leading-6 outline-none focus:border-[#9fa8da]"
                 />
                 <div className="mt-2 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => { setDraft(message.content); setEditing(false) }}
                     disabled={saving}
-                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-[#5c6bc0] hover:bg-[#f0f2ff] disabled:opacity-50"
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -83,10 +83,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
             ) : (
               <>
                 <div
-                  className="inline-block max-w-full rounded-3xl rounded-tr-lg px-4 py-3"
-                  style={{
-                    background: '#565db9',
-                  }}
+                  className="chat-user-message inline-block max-w-full rounded-3xl rounded-tr-lg px-4 py-3"
                 >
                   <p className="break-words [overflow-wrap:anywhere] whitespace-pre-wrap text-[15px] leading-[1.7] text-white">{message.content}</p>
                 </div>
@@ -97,7 +94,7 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
                     disabled={disabled}
                     aria-label="Edit prompt"
                     title="Edit prompt"
-                    className="min-h-10 min-w-10 rounded-lg p-2 text-[#68718b] transition hover:bg-[#eff0ff] hover:text-[#424aa6] disabled:opacity-50"
+                    className="min-h-10 min-w-10 rounded-lg p-2 text-[var(--color-text-muted)] transition hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent-hover)] disabled:opacity-50"
                   >
                     <EditIcon />
                   </button>
@@ -108,26 +105,17 @@ function MessageBubble({ message, messageIndex, onEdit, disabled }) {
         ) : (
           /* AI response */
           <div
-            className="rounded-2xl rounded-tl-md px-4 py-3.5 sm:px-5 sm:py-4"
-            style={{
-              background: '#ffffff',
-              border: '1px solid #e4e7f1',
-              boxShadow: '0 1px 3px rgba(34,43,90,0.04)',
-            }}
+            className="chat-assistant-message rounded-2xl rounded-tl-md px-4 py-3.5 sm:px-5 sm:py-4"
           >
             <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
             </div>
             {/* Copy button */}
-            <div className="mt-3 flex items-center gap-2 border-t border-[#edf0f6] pt-2.5">
+            <div className="chat-message-actions mt-3 flex items-center gap-2 border-t pt-2.5">
               <button
                 type="button"
                 onClick={copyMessage}
-                className="flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#68718b] transition hover:bg-[#f2f4fb] hover:text-[#424aa6]"
-                style={{
-                  color: copied ? '#424aa6' : undefined,
-                  background: copied ? '#eff0ff' : undefined,
-                }}
+                className={`flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent-hover)] ${copied ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent-hover)]' : ''}`}
               >
                 {copied ? <CheckIcon /> : <CopyIcon />}
                 {!copied && 'Copy'}
